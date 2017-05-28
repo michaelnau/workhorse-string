@@ -29,7 +29,6 @@ typedef struct WString {
 	size_t	sizeBytes;	///<Private member: Do not use. Number of contained bytes including the 0 terminator
 	size_t	capacity;	///<Private member: Do not use. Maximum number of bytes. If sizeBytes > capacity, cstring must be realloced.
 	char*	cstring;	///<Public member: A 0-terminated C string, may contain UTF8 characters.
-	//TODO: bool static;	//String was created static or on the stack without allocation and may not be modified.
 }WString;
 
 /**	When a string is defined as autoString it gets destroyed automatically

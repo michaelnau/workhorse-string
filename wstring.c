@@ -1,5 +1,4 @@
 #define _GNU_SOURCE
-#define _GNU_SOURCE
 #include "wstring.h"
 #include <assert.h>
 #include <errno.h>
@@ -76,7 +75,6 @@ checkString( const WString* string ) {
 	assert( string->cstring != NULL );
 	assert( string->size <= string->sizeBytes );
 	assert( string->sizeBytes <= string->capacity );
-	assert( string->cstring[string->capacity - 1] == '\0' );
 	assert( string->size == utf8len( string->cstring ));
 	assert( string->sizeBytes == strlen( string->cstring ) + 1 );
 
