@@ -165,16 +165,16 @@ wstring_clear( WString* string )
 }
 
 char*
-wstring_steal( WString **selfPointer )
+wstring_steal( WString** stringPtr )
 {
-	assert( selfPointer );
-	assert( *selfPointer );
+	assert( stringPtr );
+	assert( *stringPtr );
 
-	WString* string = *selfPointer;
+	WString* string = *stringPtr;
 
 	char* stolen = string->cstring;
 	string->cstring = NULL;
-	wstring_delete( selfPointer );
+	wstring_delete( stringPtr );
 
 	assert( stolen );
 	return stolen;
@@ -189,31 +189,31 @@ wstring_cstring( const WString* string )
 }
 
 void
-wstring_delete( WString **selfPointer )
+wstring_delete( WString** stringPtr )
 {
-	if ( selfPointer == NULL or *selfPointer == NULL )
+	if ( stringPtr == NULL or *stringPtr == NULL )
 		return;
 
-	WString* string = *selfPointer;
+	WString* string = *stringPtr;
 
 	free( string->cstring );
-	free( *selfPointer );
-	*selfPointer = NULL;
+	free( *stringPtr );
+	*stringPtr = NULL;
 }
 
 void
-wstring_assign( WString** selfPointer, WString* other )
+wstring_assign( WString** stringPtr, WString* other )
 {
-	if ( not selfPointer ) return;
+	if ( not stringPtr ) return;
 
-	wstring_delete( selfPointer );
-	*selfPointer = other;
+	wstring_delete( stringPtr );
+	*stringPtr = other;
 }
 
 //---------------------------------------------------------------------------------
 
 WString*
-wstring_append( WString* string, const WString *other )
+wstring_append( WString* string, const WString* other )
 {
 	assert( string != NULL );
 	assert( other != NULL );
@@ -309,7 +309,7 @@ wstring_printf( const char* format, ... )
 }
 
 WString*
-wstring_prepend( WString* string, const WString *other )
+wstring_prepend( WString* string, const WString* other )
 {
 	assert( string != NULL );
 	assert( other != NULL );
