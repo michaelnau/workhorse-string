@@ -7,9 +7,10 @@
 WStringNamespace s = wstringNamespace;
 
 #define autoChar __attribute__(( cleanup( safeFree ))) char
+
 static void
 safeFree( char** pointer ) {
-	if ( !pointer ) {
+	if ( pointer ) {
         free( *pointer );
         *pointer = NULL;
 	}
@@ -70,19 +71,19 @@ void Test_String_clone()
 }
 void Test_String_stealCstring()
 {
-	WString *string1 = WString();
+	autoWString *string1 = WString();
 	autoChar* cstring1a = String_cstring( string1 );
 	autoChar* cstring1b = String_steal( &string1 );
 	assert_strequal( cstring1a, "" );
 	assert_strequal( cstring1b, "" );
 
-	WString* string2 = WString( "test" );
+	autoWString* string2 = WString( "test" );
 	autoChar* cstring2a = String_cstring( string2 );
 	autoChar* cstring2b = String_steal( &string2 );
 	assert_strequal( cstring2a, "test" );
 	assert_strequal( cstring2b, "test" );
 
-	WString* string3 = WString( "Weiße Möhren" );
+	autoWString* string3 = WString( "Weiße Möhren" );
 	autoChar* cstring3a = String_cstring( string3 );
 	autoChar* cstring3b = String_steal( &string3 );
 	assert_strequal( cstring3a, "Weiße Möhren" );
@@ -175,7 +176,7 @@ Test_String_append()
 void
 Test_String_appendf()
 {
-	WString* string = s.dup("");
+	autoWString* string = s.dup("");
 	s.appendf( string, "" );
 	assert_strequal( string->cstring, "" );
 

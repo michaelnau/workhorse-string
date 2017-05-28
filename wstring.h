@@ -156,18 +156,6 @@ typedef struct WStringNamespace {
 WString*
 __String( WString input );
 
-/*	Create a non-allocated string in the current scope.
-*/
-#if 0
-#define StringLocal( string )				\
-	&(WString){								\
-		.cstring = string,					\
-		.size = utf8len( string ),			\
-		.sizeBytes = strlen( string )+1,	\
-		.capacity = strlen( string )+1,		\
-	}
-#endif
-
 /**	Create a string from a C string and a given cmaximum apacity.
 */
 WString*
