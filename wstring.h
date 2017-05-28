@@ -5,16 +5,18 @@
 #ifndef STRING_H_INCLUDED
 #define STRING_H_INCLUDED
 
-//#include "Basic.h"		//PRINTF
 #include <limits.h>		//INT_MIN
 #include <math.h>		//NAN
 #include <stdio.h>
 #include <stdbool.h>	//bool
 #include <stddef.h>		//size_t
 
+//---------------------------------------------------------------------------------
+
 /*	Compiler hint to check the variadic function's arguments like printf.
 */
 #define PRINTF( indexFormat, indexArgs ) __attribute__((format(printf, indexFormat, indexArgs )))
+
 //---------------------------------------------------------------------------------
 //	Types
 //---------------------------------------------------------------------------------
@@ -33,7 +35,7 @@ typedef struct WString {
 /**	When a string is defined as autoString it gets destroyed automatically
 	when leaving scope.
 */
-#define autoWString __attribute__(( cleanup( String_delete ))) WString
+#define autoWString __attribute__(( cleanup( wstring_delete ))) WString
 
 //---------------------------------------------------------------------------------
 //	String namespace
@@ -98,46 +100,46 @@ typedef struct WStringNamespace {
 /**	Predefined value for StringNamespace variables
 */
 #define wstringNamespace {				\
-	.new = String_new,					\
-	.dup = String_dup,					\
-	.clone = String_clone,				\
-	.printf = String_printf,			\
-	.delete = String_delete,			\
-	.clear = String_clear,				\
-	.steal = String_steal,				\
-	.assign = String_assign,			\
+	.new = wstring_new,					\
+	.dup = wstring_dup,					\
+	.clone = wstring_clone,				\
+	.printf = wstring_printf,			\
+	.delete = wstring_delete,			\
+	.clear = wstring_clear,				\
+	.steal = wstring_steal,				\
+	.assign = wstring_assign,			\
 \
-	.empty = String_empty,				\
-	.nonEmpty = String_nonEmpty,		\
-	.equals = String_equals,			\
-	.compare = String_compare,			\
-	.compareCase = String_compareCase,	\
-	.similarity = String_similarity,	\
-	.contains = String_contains,		\
-	.startsWith = String_startsWith,	\
-	.endsWith = String_endsWith,		\
+	.empty = wstring_empty,				\
+	.nonEmpty = wstring_nonEmpty,		\
+	.equals = wstring_equals,			\
+	.compare = wstring_compare,			\
+	.compareCase = wstring_compareCase,	\
+	.similarity = wstring_similarity,	\
+	.contains = wstring_contains,		\
+	.startsWith = wstring_startsWith,	\
+	.endsWith = wstring_endsWith,		\
 \
-	.append = String_append,			\
-	.appendc = String_appendc,			\
-	.appendn = String_appendn,			\
-	.appendf = String_appendf,			\
-	.prepend = String_prepend,			\
-	.replace = String_replace,			\
-	.replaceAll = String_replaceAll,	\
+	.append = wstring_append,			\
+	.appendc = wstring_appendc,			\
+	.appendn = wstring_appendn,			\
+	.appendf = wstring_appendf,			\
+	.prepend = wstring_prepend,			\
+	.replace = wstring_replace,			\
+	.replaceAll = wstring_replaceAll,	\
 \
-	.trim = String_trim,				\
-	.ltrim = String_ltrim,				\
-	.rtrim = String_rtrim,				\
-	.squeeze = String_squeeze,			\
+	.trim = wstring_trim,				\
+	.ltrim = wstring_ltrim,				\
+	.rtrim = wstring_rtrim,				\
+	.squeeze = wstring_squeeze,			\
 \
-	.truncate = String_truncate,		\
-	.center = String_center,			\
-	.ljust = String_ljust,				\
-	.rjust = String_rjust,				\
+	.truncate = wstring_truncate,		\
+	.center = wstring_center,			\
+	.ljust = wstring_ljust,				\
+	.rjust = wstring_rjust,				\
 \
-	.split = String_split,				\
-	.toInt = String_toInt,				\
-	.toDouble = String_toDouble,		\
+	.split = wstring_split,				\
+	.toInt = wstring_toInt,				\
+	.toDouble = wstring_toDouble,		\
 }
 
 //---------------------------------------------------------------------------------
@@ -159,17 +161,17 @@ __String( WString input );
 /**	Create a string from a C string and a given cmaximum apacity.
 */
 WString*
-String_new( const char* cstring, size_t capacity );
+wstring_new( const char* cstring, size_t capacity );
 
 /**	Create a string from a C string.
 */
 WString*
-String_dup( const char* cstring );
+wstring_dup( const char* cstring );
 
 /**	Makes a deep copy of a string.
 */
 WString*
-String_clone( const WString* string );
+wstring_clone( const WString* string );
 
 /**	Create a new string from a format string.
 
@@ -178,17 +180,17 @@ String_clone( const WString* string );
 	@return
 */
 WString*
-String_printf( const char* format, ... ) PRINTF(1, 2);
+wstring_printf( const char* format, ... ) PRINTF(1, 2);
 
 /**	Destroys a string.
 */
 void
-String_delete( WString** stringPointer );
+wstring_delete( WString** stringPointer );
 
 /**	Sets the string text to "".
 */
 void
-String_clear( WString* string );
+wstring_clear( WString* string );
 
 /**	Destroys the string and returns the contained char*.
 
@@ -196,7 +198,7 @@ String_clear( WString* string );
 	@return The contained char*
 */
 char*
-String_steal( WString** stringPointer );
+wstring_steal( WString** stringPointer );
 
 /**	Returns a copy of the contained char*.
 
@@ -204,34 +206,34 @@ String_steal( WString** stringPointer );
 	@return The copied char*
 */
 char*
-String_cstring( const WString* string );
+wstring_cstring( const WString* string );
 
 /**	Destroys a string and assigns another string to its pointer.
 */
 void
-String_assign( WString** stringPointer, WString* other );
+wstring_assign( WString** stringPointer, WString* other );
 
 //---------------------------------------------------------------------------------
 
 /**	Return the number of UTF8 characters
 */
 size_t
-String_size( const WString* string );
+wstring_size( const WString* string );
 
 /**	Return the number of bytes including the 0 terminator.
 */
 size_t
-String_sizeBytes( const WString* string );
+wstring_sizeBytes( const WString* string );
 
 /**	Check if the string is empty.
 */
 bool
-String_empty( const WString* string );
+wstring_empty( const WString* string );
 
 /**	Check if the string holds at least one character.
 */
 static inline bool
-String_nonEmpty( const WString* string ) { return !String_empty( string ); }
+wstring_nonEmpty( const WString* string ) { return !wstring_empty( string ); }
 
 /**	Check if two strings are equal.
 
@@ -240,7 +242,7 @@ String_nonEmpty( const WString* string ) { return !String_empty( string ); }
 	@return
 */
 bool
-String_equals( const WString* string, const WString* other );
+wstring_equals( const WString* string, const WString* other );
 
 /**	Compare two strings with each other.
 
@@ -249,7 +251,7 @@ String_equals( const WString* string, const WString* other );
 	@return
 */
 int
-String_compare( const WString* string, const WString* other );
+wstring_compare( const WString* string, const WString* other );
 
 /**	Compare two strings with each other ignoring case differences.
 
@@ -258,7 +260,7 @@ String_compare( const WString* string, const WString* other );
 	@return
 */
 int
-String_compareCase( const WString* string, const WString* other );
+wstring_compareCase( const WString* string, const WString* other );
 
 /**	Compare two strings and return a measure for their similarity.
 
@@ -272,7 +274,7 @@ String_compareCase( const WString* string, const WString* other );
 	@pre other != NULL
 */
 size_t
-String_similarity( const WString* string, const WString* other );
+wstring_similarity( const WString* string, const WString* other );
 
 /**	Check if a string contains another string.
 
@@ -281,7 +283,7 @@ String_similarity( const WString* string, const WString* other );
 	@return
 */
 bool
-String_contains( const WString* string, const WString* other );
+wstring_contains( const WString* string, const WString* other );
 
 /**	Check if a string starts with another string.
 
@@ -290,7 +292,7 @@ String_contains( const WString* string, const WString* other );
 	@return
 */
 bool
-String_startsWith( const WString* string, const WString* other );
+wstring_startsWith( const WString* string, const WString* other );
 
 /**	Check if a string ends with another string.
 
@@ -299,7 +301,7 @@ String_startsWith( const WString* string, const WString* other );
 	@return
 */
 bool
-String_endsWith( const WString* string, const WString* other );
+wstring_endsWith( const WString* string, const WString* other );
 
 //---------------------------------------------------------------------------------
 
@@ -310,12 +312,12 @@ String_endsWith( const WString* string, const WString* other );
 	@return string
 */
 WString*
-String_append( WString* string, const WString* other );
+wstring_append( WString* string, const WString* other );
 
 /**	Prepend a string before another string.
 */
 WString*
-String_prepend( WString* string, const WString* other );
+wstring_prepend( WString* string, const WString* other );
 
 /**	Append a C string to another string.
 
@@ -324,7 +326,7 @@ String_prepend( WString* string, const WString* other );
 	@return string
 */
 WString*
-String_appendc( WString* string, const char* other );
+wstring_appendc( WString* string, const char* other );
 
 /**	Appends n characters from a buffer to the string.
 
@@ -334,7 +336,7 @@ String_appendc( WString* string, const char* other );
 	@return
 */
 WString*
-String_appendn( WString* string, size_t n, const char* buffer );
+wstring_appendn( WString* string, size_t n, const char* buffer );
 
 /**	Appends a printf-like string to another string.
 
@@ -344,18 +346,18 @@ String_appendn( WString* string, size_t n, const char* buffer );
 	@return string
 */
 WString*
-String_appendf( WString* string, const char* format, ... ) PRINTF(2, 3) ;
+wstring_appendf( WString* string, const char* format, ... ) PRINTF(2, 3) ;
 
 //String*
-//TODO: String_insert( String* string, size_t position );
+//TODO: wstring_insert( String* string, size_t position );
 
 //---------------------------------------------------------------------------------
 
 //uint32_t
-//TODO: String_at( const String* string, size_t position );
+//TODO: wstring_at( const String* string, size_t position );
 
 //String*
-//TODO: String_slice( const String* string, size_t start, size_t end );
+//TODO: wstring_slice( const String* string, size_t start, size_t end );
 
 //---------------------------------------------------------------------------------
 
@@ -367,7 +369,7 @@ String_appendf( WString* string, const char* format, ... ) PRINTF(2, 3) ;
 	@return
 */
 WString*
-String_replace( WString* string, const char* search, const char* replace );
+wstring_replace( WString* string, const char* search, const char* replace );
 
 /**	Replaces all matches of a search string with a replacement string.
 
@@ -377,7 +379,7 @@ String_replace( WString* string, const char* search, const char* replace );
 	@return
 */
 WString*
-String_replaceAll( WString* string, const char* search, const char* replace );
+wstring_replaceAll( WString* string, const char* search, const char* replace );
 
 //---------------------------------------------------------------------------------
 
@@ -388,17 +390,17 @@ String_replaceAll( WString* string, const char* search, const char* replace );
 	@return string, to allow chaining with other string functions
 */
 WString*
-String_trim( WString* string, const char chars[] );
+wstring_trim( WString* string, const char chars[] );
 
 /**	Remove characters from the start.
 */
 WString*
-String_ltrim( WString* string, const char chars[] );
+wstring_ltrim( WString* string, const char chars[] );
 
 /**	Remove characters from the end.
 */
 WString*
-String_rtrim( WString* string, const char chars[] );
+wstring_rtrim( WString* string, const char chars[] );
 
 /**	Remove all multiple whitespace characters from the string.
 
@@ -406,18 +408,18 @@ String_rtrim( WString* string, const char chars[] );
 	@return string
 */
 WString*
-String_squeeze( WString* string );
+wstring_squeeze( WString* string );
 
 //---------------------------------------------------------------------------------
 
 //String*
-//TODO: String_toLower( String* string );
+//TODO: wstring_toLower( String* string );
 
 //String*
-//TODO: String_toUpper( String* string );
+//TODO: wstring_toUpper( String* string );
 
 //String*
-//TODO: String_toTitle( String* string );
+//TODO: wstring_toTitle( String* string );
 
 //---------------------------------------------------------------------------------
 
@@ -425,10 +427,10 @@ String_squeeze( WString* string );
 
 	@param string The string to be truncated
 	@param size The maximum character number that will remain
-	@return string, allowing to chain the function with other String_xyz() calls
+	@return string, allowing to chain the function with other wstring_xyz() calls
 */
 WString*
-String_truncate( WString* string, size_t size );
+wstring_truncate( WString* string, size_t size );
 
 //---------------------------------------------------------------------------------
 
@@ -436,17 +438,17 @@ String_truncate( WString* string, size_t size );
 	with spaces.
 */
 WString*
-String_center( WString* string, size_t size );
+wstring_center( WString* string, size_t size );
 
 /**	Increase the string to the given size by filling it with spaces at the front.
 */
 WString*
-String_ljust( WString* string, size_t size );
+wstring_ljust( WString* string, size_t size );
 
 /**	Increase the string to the given size by filling it with spacess at the end.
 */
 WString*
-String_rjust( WString* string, size_t size );
+wstring_rjust( WString* string, size_t size );
 
 //---------------------------------------------------------------------------------
 
@@ -464,16 +466,16 @@ String_rjust( WString* string, size_t size );
 	}
 	void foo() {
 		//Create a string with comma-separated numbers
-		String* myString = String_new( "3.141, 2.791, 42, -1" );
+		String* myString = wstring_new( "3.141, 2.791, 42, -1" );
 		//Split the string in numbers.
 		//Take " " and "," as separating characters
 		//For each resulting token: print it.
-		String_split( myString, " ,", printNumber );
+		wstring_split( myString, " ,", printNumber );
 	}
 	\endcode
 */
 void
-String_split( const WString* string, const char* delimiters, void foreach( const WString* ));
+wstring_split( const WString* string, const char* delimiters, void foreach( const WString* ));
 
 //---------------------------------------------------------------------------------
 
@@ -483,7 +485,7 @@ String_split( const WString* string, const char* delimiters, void foreach( const
 	@return The resulting integer or INT_MIN if the string could not be parsed.
 */
 int
-String_toInt( const WString* string );
+wstring_toInt( const WString* string );
 
 /**	Parse a string and convert it to a double.
 
@@ -491,7 +493,7 @@ String_toInt( const WString* string );
 	@return The resulting double or NAN if the string could not be parsed.
 */
 double
-String_toDouble( const WString* string );
+wstring_toDouble( const WString* string );
 
 //---------------------------------------------------------------------------------
 
