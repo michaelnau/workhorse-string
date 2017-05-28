@@ -145,6 +145,7 @@ typedef struct WStringNamespace {
 //	String creation and destruction
 //---------------------------------------------------------------------------------
 
+#if 0
 /**	Create a new string.
 
 	@param .string (const char*, default = "")
@@ -156,6 +157,7 @@ typedef struct WStringNamespace {
 
 WString*
 __String( WString input );
+#endif // 0
 
 /**	Create a string from a C string and a given cmaximum apacity.
 */

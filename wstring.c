@@ -82,8 +82,10 @@ checkString( const WString* string ) {
 }
 
 enum WStringConfiguration {
-	WStringGrowthRate	= 2,
+	WStringGrowthRate		= 2,
+	WStringDefaultCapacity 	= 100,
 };
+
 
 //const ElementType* stringElement = &(ElementType){
 //	.clone = (ElementClone*)wstring_clone,
@@ -104,11 +106,6 @@ do {																	\
 		__VA_ARGS__														\
 	}																	\
 }while( 0 )
-
-enum {
-	StringDefaultCapacity 	= 100,
-	StringGrowRate			= 2
-};
 
 //---------------------------------------------------------------------------------
 
@@ -146,7 +143,7 @@ wstring_new( const char* cstring, size_t capacity )
 	WString *self = __wxnew( WString,
 		.size = utf8len( cstring ),
 		.sizeBytes = strlen( cstring ) + 1,
-		.capacity = capacity ? capacity : StringDefaultCapacity,
+		.capacity = capacity ? capacity : WStringDefaultCapacity,
 	);
 
 	self->capacity = __wmax( self->capacity, self->sizeBytes );
@@ -548,10 +545,11 @@ wstring_center( WString *self, size_t size )
 	assert( self != NULL );
 	assert( size > 0 );
 
-	if ( size <= self->size )
+	if ( self->size >= size )
 		return checkString( self );
 
-	resize( self, size );
+	size_t delta = size - self->size;
+	resize( self, self->sizeBytes + delta );
 
 	size_t numberSpacesLeft = ( size - self->size ) / 2;
 	size_t numberSpacesRight = size - self->size - numberSpacesLeft;
@@ -578,7 +576,6 @@ wstring_ljust( WString* string, size_t size )
 	assert( size > 0 );
 
 	if ( string->size >= size ) return string;
-
 	size_t delta = size - string->size;
 
 	resize( string, string->sizeBytes + delta );
@@ -600,7 +597,6 @@ wstring_rjust( WString* string, size_t size )
 	assert( size > 0 );
 
 	if ( string->size >= size ) return string;
-
 	size_t delta = size - string->size;
 
 	resize( string, string->sizeBytes + delta );
@@ -825,6 +821,7 @@ resize( WString *self, size_t newCapacity )
 	if ( newCapacity > self->capacity ) {
 		self->capacity = __wmax( newCapacity, self->capacity * WStringGrowthRate );
 		self->cstring = __wxrealloc( self->cstring, self->capacity );
+		self->cstring[self->capacity-1] = 0;
 	}
 	assert( self->capacity >= newCapacity );
 //	checkString( self );
