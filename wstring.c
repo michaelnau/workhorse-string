@@ -68,6 +68,19 @@ __wxcalloc( size_t number, size_t size )
 	return NULL;
 }
 
+char*
+__wstr_dup( const char* string )
+{
+	if ( not string ) string = "";
+
+	size_t size = strlen( string ) + 1;
+	char* copy = __wxmalloc( size );
+    memcpy( copy, string, size );
+
+    assert( copy );
+    return copy;
+}
+
 //---------------------------------------------------------------------------------
 
 static WString*
@@ -185,7 +198,7 @@ wstring_cstring( const WString* string )
 {
 	assert( string );
 
-	return strdup( string->cstring );
+	return __wstr_dup( string->cstring );
 }
 
 void
@@ -728,7 +741,7 @@ wstring_split( const WString* string, const char *delimiters, void foreach( cons
 	assert( foreach );
 
 	//Get the first substring.
-	char* copy = strdup( string->cstring );
+	char* copy = __wstr_dup( string->cstring );
 	char* strtokPtr = NULL;
 	char* token = copy[0] ? strtok_r( copy, delimiters, &strtokPtr ) : "";
 
