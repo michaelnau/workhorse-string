@@ -145,20 +145,6 @@ typedef struct WStringNamespace {
 //	String creation and destruction
 //---------------------------------------------------------------------------------
 
-#if 0
-/**	Create a new string.
-
-	@param .string (const char*, default = "")
-	@param .capacity (size_t, default = 100)
-	@return (String*)
-*/
-#define WString( ... )					\
-	__String( (WString){ .capacity = 100, __VA_ARGS__ })
-
-WString*
-__String( WString input );
-#endif // 0
-
 /**	Create a string from a C string and a given cmaximum apacity.
 */
 WString*

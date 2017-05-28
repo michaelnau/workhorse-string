@@ -14,13 +14,13 @@
 //---------------------------------------------------------------------------------
 
 static void
-resize( WString *self, size_t newCapacity );
+resize( WString* string, size_t newCapacity );
 
-size_t
+static size_t
 utf8len( const char *str );
 
 static size_t
-occurrences( const char *self, const char *search );
+occurrences( const char *string, const char *search );
 
 //---------------------------------------------------------------------------------
 //	Memeory management & helpers
@@ -98,10 +98,10 @@ enum WStringConfiguration {
 //---------------------------------------------------------------------------------
 
 //TODO: Step over UTF8 characters
-#define wstring_foreachIndex( self, index, ... )							\
+#define wstring_foreachIndex( string, index, ... )							\
 do {																	\
-	assert( self != NULL );											\
-	char *__string = self->cstring;										\
+	assert( string != NULL );											\
+	char *__string = string->cstring;										\
 	for ( size_t index = 0; __string[index] != '\0'; index++ ) {		\
 		__VA_ARGS__														\
 	}																	\
@@ -110,53 +110,27 @@ do {																	\
 //---------------------------------------------------------------------------------
 
 WString*
-__String( WString input )
-{
-	assert( input.capacity > 0 );
-
-	if ( not input.cstring ) input.cstring = "";
-
-	WString *self = __wxnew( WString,
-		.size = utf8len( input.cstring ),
-		.sizeBytes = strlen( input.cstring ) + 1,
-		.capacity = input.capacity
-	);
-
-	self->capacity = __wmax( self->capacity, self->sizeBytes );
-
-	//Copy the given char* into our new String*
-	self->cstring = __wxmalloc( self->capacity );
-	strcpy( self->cstring, input.cstring ),
-
-	//Always terminate the cstring
-	self->cstring[self->capacity - 1] = '\0';
-
-	assert( self );
-	return checkString( self );
-}
-
-WString*
 wstring_new( const char* cstring, size_t capacity )
 {
 	assert( cstring );
 
-	WString *self = __wxnew( WString,
+	WString* string = __wxnew( WString,
 		.size = utf8len( cstring ),
 		.sizeBytes = strlen( cstring ) + 1,
 		.capacity = capacity ? capacity : WStringDefaultCapacity,
 	);
 
-	self->capacity = __wmax( self->capacity, self->sizeBytes );
+	string->capacity = __wmax( string->capacity, string->sizeBytes );
 
 	//Copy the given char* into our new String*
-	self->cstring = __wxmalloc( self->capacity );
-	strcpy( self->cstring, cstring ),
+	string->cstring = __wxmalloc( string->capacity );
+	strcpy( string->cstring, cstring ),
 
 	//Always terminate the cstring
-	self->cstring[self->capacity - 1] = '\0';
+	string->cstring[string->capacity - 1] = '\0';
 
-	assert( self );
-	return checkString( self );
+	assert( string );
+	return checkString( string );
 }
 
 WString*
@@ -166,32 +140,28 @@ wstring_dup( const char* cstring )
 }
 
 WString*
-wstring_clone( const WString *self )
+wstring_clone( const WString* string )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 
-	WString* clone = __String( (WString) {
-			.capacity = self->capacity,
-			.cstring = self->cstring
-		}
-	);
+	WString* clone = wstring_new( string->cstring, string->capacity );
 
 	assert( clone );
-	assert( wstring_equals( clone, self ) );
+	assert( wstring_equals( clone, string ) );
 	return checkString( clone );
 }
 
 void
-wstring_clear( WString *self )
+wstring_clear( WString* string )
 {
-	assert( self );
+	assert( string );
 
-	self->cstring[0] = '\0';
-	self->size = 0;
-	self->sizeBytes = 1;
+	string->cstring[0] = '\0';
+	string->size = 0;
+	string->sizeBytes = 1;
 
-	assert( wstring_empty( self ) );
-	checkString( self );
+	assert( wstring_empty( string ) );
+	checkString( string );
 }
 
 char*
@@ -200,10 +170,10 @@ wstring_steal( WString **selfPointer )
 	assert( selfPointer );
 	assert( *selfPointer );
 
-	WString *self = *selfPointer;
+	WString* string = *selfPointer;
 
-	char* stolen = self->cstring;
-	self->cstring = NULL;
+	char* stolen = string->cstring;
+	string->cstring = NULL;
 	wstring_delete( selfPointer );
 
 	assert( stolen );
@@ -224,9 +194,9 @@ wstring_delete( WString **selfPointer )
 	if ( selfPointer == NULL or *selfPointer == NULL )
 		return;
 
-	WString *self = *selfPointer;
+	WString* string = *selfPointer;
 
-	free( self->cstring );
+	free( string->cstring );
 	free( *selfPointer );
 	*selfPointer = NULL;
 }
@@ -243,39 +213,39 @@ wstring_assign( WString** selfPointer, WString* other )
 //---------------------------------------------------------------------------------
 
 WString*
-wstring_append( WString *self, const WString *other )
+wstring_append( WString* string, const WString *other )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 	assert( other != NULL );
 
-	size_t newSize = self->sizeBytes + other->sizeBytes - 1;
-	resize( self, newSize );
+	size_t newSize = string->sizeBytes + other->sizeBytes - 1;
+	resize( string, newSize );
 
-	strcpy( &self->cstring[self->sizeBytes - 1], other->cstring );
-	self->size += other->size;
-	self->sizeBytes += other->sizeBytes - 1;
+	strcpy( &string->cstring[string->sizeBytes - 1], other->cstring );
+	string->size += other->size;
+	string->sizeBytes += other->sizeBytes - 1;
 
-	assert( self );
-	assert( wstring_endsWith( self, other ));
-	return checkString( self );
+	assert( string );
+	assert( wstring_endsWith( string, other ));
+	return checkString( string );
 }
 
 WString*
-wstring_appendc( WString *self, const char* other )
+wstring_appendc( WString* string, const char* other )
 {
-	assert( self );
+	assert( string );
 	assert( other );
 
 	size_t sizeOther = strlen( other );
-	size_t newSize = self->sizeBytes + sizeOther;
-	resize( self, newSize );
+	size_t newSize = string->sizeBytes + sizeOther;
+	resize( string, newSize );
 
-	strcpy( &self->cstring[self->sizeBytes - 1], other );
-	self->size += utf8len( other );
-	self->sizeBytes += sizeOther;
+	strcpy( &string->cstring[string->sizeBytes - 1], other );
+	string->size += utf8len( other );
+	string->sizeBytes += sizeOther;
 
-	assert( self );
-	return checkString( self );
+	assert( string );
+	return checkString( string );
 }
 
 WString*
@@ -298,9 +268,9 @@ wstring_appendn( WString* string, size_t n, const char* buffer )
 }
 
 WString*
-wstring_appendf( WString* self, const char* format, ... )
+wstring_appendf( WString* string, const char* format, ... )
 {
-	assert( self );
+	assert( string );
 	assert( format );
 
 	char* other;
@@ -311,11 +281,11 @@ wstring_appendf( WString* self, const char* format, ... )
 		__wdie( "vasprintf error." );
 	va_end( args );
 
-	wstring_appendc( self, other );
+	wstring_appendc( string, other );
 
 	free( other );
-	assert( self );
-    return checkString( self );
+	assert( string );
+    return checkString( string );
 }
 
 WString*
@@ -339,49 +309,49 @@ wstring_printf( const char* format, ... )
 }
 
 WString*
-wstring_prepend( WString *self, const WString *other )
+wstring_prepend( WString* string, const WString *other )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 	assert( other != NULL );
 
-	size_t newSize = self->sizeBytes + other->sizeBytes - 1;
-	resize( self, newSize );
+	size_t newSize = string->sizeBytes + other->sizeBytes - 1;
+	resize( string, newSize );
 
-	memmove( &self->cstring[other->sizeBytes - 1], self->cstring, self->sizeBytes );
-	memmove( self->cstring, other->cstring, other->sizeBytes - 1 );
+	memmove( &string->cstring[other->sizeBytes - 1], string->cstring, string->sizeBytes );
+	memmove( string->cstring, other->cstring, other->sizeBytes - 1 );
 
-	self->size += other->size;
-	self->sizeBytes += other->sizeBytes - 1;
+	string->size += other->size;
+	string->sizeBytes += other->sizeBytes - 1;
 
-	assert( self );
-	assert( wstring_startsWith( self, other ) );
-	return checkString( self );
+	assert( string );
+	assert( wstring_startsWith( string, other ) );
+	return checkString( string );
 }
 
 //REFACTOR: wstring_replace() must use resize()
 static WString*
-_replace( WString *self, const char *search, const char *replace, bool all )
+_replace( WString* string, const char *search, const char *replace, bool all )
 {
-	assert( self );
+	assert( string );
 	assert( search );
 	assert( replace );
 
-	size_t count = occurrences( self->cstring, search );
-	if ( count == 0 ) return checkString( self );
+	size_t count = occurrences( string->cstring, search );
+	if ( count == 0 ) return checkString( string );
 
 	size_t searchLen = strlen( search );
 	size_t replaceLen = strlen( replace );
 
 	size_t newSizeBytes = (
-        self->sizeBytes - 1
+        string->sizeBytes - 1
       - searchLen * count
       + replaceLen * count
 	) + 1;
 
-	size_t newCapacity = __wmax( self->capacity, newSizeBytes );
+	size_t newCapacity = __wmax( string->capacity, newSizeBytes );
 	char *newCString = __wxcalloc( newCapacity, 1 );
 
-	char *pos = self->cstring;
+	char *pos = string->cstring;
 	char *current;
 	bool repeat = true;
 	while (( current = strstr( pos, search )) and repeat ) {
@@ -392,30 +362,30 @@ _replace( WString *self, const char *search, const char *replace, bool all )
 		repeat = all;
 	}
 
-	if ( pos != ( self->cstring + self->sizeBytes - 1 ))
-		strncat( newCString, pos, ( self->cstring - pos ));
+	if ( pos != ( string->cstring + string->sizeBytes - 1 ))
+		strncat( newCString, pos, ( string->cstring - pos ));
 
-	free( self->cstring );
-	self->cstring = newCString;
-	self->sizeBytes = strlen( self->cstring ) + 1;
-	self->size = utf8len( self->cstring );
-	self->capacity = newCapacity;
-	self->cstring[newCapacity - 1] = 0;
+	free( string->cstring );
+	string->cstring = newCString;
+	string->sizeBytes = strlen( string->cstring ) + 1;
+	string->size = utf8len( string->cstring );
+	string->capacity = newCapacity;
+	string->cstring[newCapacity - 1] = 0;
 
-	assert( self != NULL );
-	return checkString( self );
+	assert( string != NULL );
+	return checkString( string );
 }
 
 WString*
-wstring_replace( WString *self, const char* search, const char* replace )
+wstring_replace( WString* string, const char* search, const char* replace )
 {
-	return _replace( self, search, replace, false );
+	return _replace( string, search, replace, false );
 }
 
 WString*
-wstring_replaceAll( WString *self, const char* search, const char* replace )
+wstring_replaceAll( WString* string, const char* search, const char* replace )
 {
-	return _replace( self, search, replace, true );
+	return _replace( string, search, replace, true );
 }
 
 inline static bool
@@ -430,78 +400,78 @@ isTrimmable( char character, const char *trimlist )
 }
 
 WString*
-wstring_trim( WString *self, const char chars[] )
+wstring_trim( WString* string, const char chars[] )
 {
-	wstring_ltrim( self, chars );
-	wstring_rtrim( self, chars );
+	wstring_ltrim( string, chars );
+	wstring_rtrim( string, chars );
 
-	return self;
+	return string;
 }
 
 WString*
-wstring_ltrim( WString *self, const char chars[] )
+wstring_ltrim( WString* string, const char chars[] )
 {
-	assert( self );
+	assert( string );
 	assert( chars );
 	assert( chars[0] );
 
-	char *newString = self->cstring;
-	size_t newLen = self->sizeBytes;
+	char *newString = string->cstring;
+	size_t newLen = string->sizeBytes;
 
 	while ( isTrimmable( *newString, chars ) ) {
 		newString++;
 		newLen--;
-		self->size--;
-		self->sizeBytes--;
+		string->size--;
+		string->sizeBytes--;
 	}
 
 	if ( newLen > 0 )
-		memmove( self->cstring, newString, newLen );
+		memmove( string->cstring, newString, newLen );
 
-	assert( self != NULL );
-	return checkString( self );
+	assert( string != NULL );
+	return checkString( string );
 }
 
 WString*
-wstring_rtrim( WString *self, const char chars[] )
+wstring_rtrim( WString* string, const char chars[] )
 {
-	assert( self );
+	assert( string );
 	assert( chars );
 	assert( chars[0] );
 
-	if ( self->sizeBytes < 2 )
-		return self;
+	if ( string->sizeBytes < 2 )
+		return string;
 
-	char *newEnd = &self->cstring[self->sizeBytes - 2];
+	char *newEnd = &string->cstring[string->sizeBytes - 2];
 
-	while ( newEnd > self->cstring and isTrimmable( *newEnd, chars ) ) {
+	while ( newEnd > string->cstring and isTrimmable( *newEnd, chars ) ) {
 		newEnd--;
-		self->size--;
-		self->sizeBytes--;
+		string->size--;
+		string->sizeBytes--;
 	}
 
 	newEnd[1] = '\0';
 
-	assert( self != NULL );
-	return checkString( self );
+	assert( string != NULL );
+	return checkString( string );
 }
 
 WString*
-wstring_squeeze( WString *self )
+wstring_squeeze( WString* string )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 
-    if ( self->sizeBytes <= 1 )
-		return checkString( self );
+    if ( string->sizeBytes <= 1 )
+		return checkString( string );
 
-    char *from = self->cstring + 1;
-    char *to = self->cstring + 1;
+    char *from = string->cstring + 1;
+    char *to = string->cstring + 1;
 
 	while ( *from ) {
 		char byte = *from;
 		if ( isspace( byte ) and byte == *( from - 1 ) ) {
-			self->size--;
-			self->sizeBytes--;
+			string->size--;
+			string->sizeBytes--;
 		}
 		else
 			*to++ = byte;
@@ -511,62 +481,62 @@ wstring_squeeze( WString *self )
 
 	*to = 0;
 
-	assert( self != NULL );
-	return checkString( self );
+	assert( string != NULL );
+	return checkString( string );
 }
 
 WString*
-wstring_truncate( WString *self, size_t size )
+wstring_truncate( WString* string, size_t size )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 
-	if ( size >= self->size )
-		return checkString( self );
+	if ( size >= string->size )
+		return checkString( string );
 
 	size_t charIndex = 1;
-	wstring_foreachIndex( self, byteIndex,
+	wstring_foreachIndex( string, byteIndex,
 		if ( charIndex > size ) {
-			self->cstring[byteIndex] = 0;
-			self->size = size;
-			self->sizeBytes = byteIndex + 1;
-			return checkString( self );
+			string->cstring[byteIndex] = 0;
+			string->size = size;
+			string->sizeBytes = byteIndex + 1;
+			return checkString( string );
 		}
 		charIndex++;
 	);
 
-	assert( self != NULL );
-	assert( wstring_size( self ) <= size );
-	return checkString( self );
+	assert( string != NULL );
+	assert( wstring_size( string ) <= size );
+	return checkString( string );
 }
 
 WString*
-wstring_center( WString *self, size_t size )
+wstring_center( WString* string, size_t size )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 	assert( size > 0 );
 
-	if ( self->size >= size )
-		return checkString( self );
+	if ( string->size >= size )
+		return checkString( string );
 
-	size_t delta = size - self->size;
-	resize( self, self->sizeBytes + delta );
+	size_t delta = size - string->size;
+	resize( string, string->sizeBytes + delta );
 
-	size_t numberSpacesLeft = ( size - self->size ) / 2;
-	size_t numberSpacesRight = size - self->size - numberSpacesLeft;
+	size_t numberSpacesLeft = ( size - string->size ) / 2;
+	size_t numberSpacesRight = size - string->size - numberSpacesLeft;
 
 	//Move the old string and fill up with spaces
-	memmove( &self->cstring[numberSpacesLeft], self->cstring, self->sizeBytes );
-	memset( self->cstring, ' ', numberSpacesLeft );
-	memset( &self->cstring[self->sizeBytes + numberSpacesLeft - 1], ' ', numberSpacesRight );
+	memmove( &string->cstring[numberSpacesLeft], string->cstring, string->sizeBytes );
+	memset( string->cstring, ' ', numberSpacesLeft );
+	memset( &string->cstring[string->sizeBytes + numberSpacesLeft - 1], ' ', numberSpacesRight );
 
-	self->size = size;
-	self->sizeBytes += ( numberSpacesLeft + numberSpacesRight );
+	string->size = size;
+	string->sizeBytes += ( numberSpacesLeft + numberSpacesRight );
 
-	self->cstring[self->sizeBytes - 1] = 0;
+	string->cstring[string->sizeBytes - 1] = 0;
 
-	assert( self != NULL );
-	assert( wstring_size( self ) >= size );
-	return checkString( self );
+	assert( string != NULL );
+	assert( wstring_size( string ) >= size );
+	return checkString( string );
 }
 
 WString*
@@ -614,57 +584,57 @@ wstring_rjust( WString* string, size_t size )
 //---------------------------------------------------------------------------------
 
 size_t
-wstring_size( const WString *self )
+wstring_size( const WString* string )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 
-	return self->size;
+	return string->size;
 }
 
 size_t
-wstring_sizeBytes( const WString *self )
+wstring_sizeBytes( const WString* string )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 
-	return self->sizeBytes;
+	return string->sizeBytes;
 }
 
 bool
-wstring_empty( const WString *self )
+wstring_empty( const WString* string )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 
-	return self->size == 0;
+	return string->size == 0;
 }
 
 bool
-wstring_equals( const WString *self, const WString *other )
+wstring_equals( const WString* string, const WString *other )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 	assert( other != NULL );
 
-	return self->size == other->size and					//Faster comparison for unequal strings
-		   self->sizeBytes == other->sizeBytes and			//Faster comparison for unequal strings
-		   strcmp( self->cstring, other->cstring ) == 0;
+	return string->size == other->size and					//Faster comparison for unequal strings
+		   string->sizeBytes == other->sizeBytes and			//Faster comparison for unequal strings
+		   strcmp( string->cstring, other->cstring ) == 0;
 }
 
 int
-wstring_compare( const WString *self, const WString *other )
+wstring_compare( const WString* string, const WString *other )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 	assert( other != NULL );
 
-	return strcmp( self->cstring, other->cstring );
+	return strcmp( string->cstring, other->cstring );
 }
 
 //TODO: Only ASCII characters are compared correctly.
 int
-wstring_compareCase( const WString *self, const WString *other )
+wstring_compareCase( const WString* string, const WString *other )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 	assert( other != NULL );
 
-	return strcasecmp( self->cstring, other->cstring );
+	return strcasecmp( string->cstring, other->cstring );
 }
 
 //Taken and modified from https://github.com/wooorm/levenshtein.c, MIT licensed
@@ -717,48 +687,48 @@ wstring_similarity( const WString* string, const WString* other )
 }
 
 bool
-wstring_contains( const WString *self, const WString *other )
+wstring_contains( const WString* string, const WString *other )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 	assert( other != NULL );
 
-	return strstr( self->cstring, other->cstring ) != NULL;
+	return strstr( string->cstring, other->cstring ) != NULL;
 }
 
 bool
-wstring_startsWith( const WString *self, const WString *other )
+wstring_startsWith( const WString* string, const WString *other )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 	assert( other != NULL );
 
-	return strstr( self->cstring, other->cstring ) == self->cstring;
+	return strstr( string->cstring, other->cstring ) == string->cstring;
 }
 
 bool
-wstring_endsWith( const WString *self, const WString *other )
+wstring_endsWith( const WString* string, const WString *other )
 {
-	assert( self != NULL );
+	assert( string != NULL );
 	assert( other != NULL );
 
-	if ( self->sizeBytes < other->sizeBytes )
+	if ( string->sizeBytes < other->sizeBytes )
 		return false;
 
-	size_t endPosition = self->sizeBytes - other->sizeBytes;
+	size_t endPosition = string->sizeBytes - other->sizeBytes;
 
-	return strcmp( &self->cstring[endPosition], other->cstring ) == 0;
+	return strcmp( &string->cstring[endPosition], other->cstring ) == 0;
 }
 
 //---------------------------------------------------------------------------------
 
 void
-wstring_split( const WString *self, const char *delimiters, void foreach( const WString* ))
+wstring_split( const WString* string, const char *delimiters, void foreach( const WString* ))
 {
-	assert( self );
+	assert( string );
 	assert( delimiters and delimiters[0] );
 	assert( foreach );
 
 	//Get the first substring.
-	char* copy = strdup( self->cstring );
+	char* copy = strdup( string->cstring );
 	char* strtokPtr = NULL;
 	char* token = copy[0] ? strtok_r( copy, delimiters, &strtokPtr ) : "";
 
@@ -775,61 +745,61 @@ wstring_split( const WString *self, const char *delimiters, void foreach( const 
 //---------------------------------------------------------------------------------
 
 int
-wstring_toInt( const WString *self )
+wstring_toInt( const WString* string )
 {
-	assert( self );
+	assert( string );
 
 	char *endptr;
 
 	errno = 0;
-	long value = strtol( self->cstring, &endptr, 10 );
+	long value = strtol( string->cstring, &endptr, 10 );
 
 	if (( errno == ERANGE and ( value == LONG_MAX or value == LONG_MIN )) or ( errno != 0 and value == 0 ))
 		return INT_MIN;
 
-	if ( endptr == self->cstring )
+	if ( endptr == string->cstring )
 		return INT_MIN;
 
 	return value;
 }
 
-
 double
-wstring_toDouble( const WString *self )
+wstring_toDouble( const WString* string )
 {
-	assert( self );
+	assert( string );
 
 	char *endptr;
 
 	errno = 0;
-	double value = strtod( self->cstring, &endptr );
+	double value = strtod( string->cstring, &endptr );
 
 	if (( errno == ERANGE and ( value == DBL_MAX or value == DBL_MIN )) or ( errno != 0 and value == 0.0 ))
 		return NAN;
 
-	if ( endptr == self->cstring )
+	if ( endptr == string->cstring )
 		return NAN;
 
 	return value;
 }
+
 //---------------------------------------------------------------------------------
 
 //Resize the string to the given new capacity.
 static void
-resize( WString *self, size_t newCapacity )
+resize( WString* string, size_t newCapacity )
 {
-	if ( newCapacity > self->capacity ) {
-		self->capacity = __wmax( newCapacity, self->capacity * WStringGrowthRate );
-		self->cstring = __wxrealloc( self->cstring, self->capacity );
-		self->cstring[self->capacity-1] = 0;
+	if ( newCapacity > string->capacity ) {
+		string->capacity = __wmax( newCapacity, string->capacity * WStringGrowthRate );
+		string->cstring = __wxrealloc( string->cstring, string->capacity );
+		string->cstring[string->capacity-1] = 0;
 	}
-	assert( self->capacity >= newCapacity );
-//	checkString( self );
+	assert( string->capacity >= newCapacity );
+//	checkString( string );
 }
 
 //Taken from Github, UTF8.h (Public Domain), then modified
-size_t
-utf8len( const char *str )
+static size_t
+utf8len( const char* str )
 {
   const unsigned char* s = (const unsigned char* )str;
   size_t length = 0;
@@ -860,12 +830,12 @@ utf8len( const char *str )
 /*Algorithm taken from the Github account from Stephen Mathieson, then modified.
 */
 static size_t
-occurrences( const char *self, const char *search )
+occurrences( const char *string, const char *search )
 {
-	assert( self );
+	assert( string );
 	assert( search );
 
-	const char *selfPosition = self;
+	const char *selfPosition = string;
 	size_t count = 0;
 	size_t searchLength = strlen( search );
 
