@@ -81,6 +81,37 @@ __wstr_dup( const char* string )
     return copy;
 }
 
+static int
+__wxvsnprintf( char* string, size_t size, const char* format, va_list args )
+{
+	assert( format );
+
+	int len = vsnprintf( string, size, format, args );
+	if ( len >= 0 ) return len;
+
+	__wdie( "Out of memory." );
+	return -1;
+}
+
+static char*
+__wstr_printfa( const char* format, va_list args )
+{
+	assert( format );
+
+    va_list args_copy;
+	va_copy( args_copy, args );
+
+	int len = __wxvsnprintf( NULL, 0, format, args_copy ) + 1;
+	char* other = __wxmalloc( len );
+	__wxvsnprintf( other, len, format, args );
+
+	va_end( args_copy );
+
+	assert( other );
+	return other;
+}
+
+
 //---------------------------------------------------------------------------------
 
 static WString*
@@ -286,12 +317,9 @@ wstring_appendf( WString* string, const char* format, ... )
 	assert( string );
 	assert( format );
 
-	char* other;
-
     va_list args;
     va_start( args, format );
-	if ( vasprintf( &other, format, args ) < 0 )
-		__wdie( "vasprintf error." );
+	char* other = __wstr_printfa( format, args );
 	va_end( args );
 
 	wstring_appendc( string, other );
@@ -306,12 +334,9 @@ wstring_printf( const char* format, ... )
 {
 	assert( format );
 
-	char* cstring;
-
     va_list args;
     va_start( args, format );
-	if ( vasprintf( &cstring, format, args ) < 0 )
-		__wdie( "vasprintf error." );
+	char* cstring  = __wstr_printfa( format, args );
 	va_end( args );
 
 	WString* string = wstring_dup( cstring );
