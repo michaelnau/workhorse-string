@@ -111,6 +111,7 @@ wstring_empty( const WString* string );
 static inline bool
 wstring_nonEmpty( const WString* string ) { return !wstring_empty( string ); }
 
+
 /**	Check if two strings are equal.
 
 	@param string
@@ -235,6 +236,7 @@ wstring_appendf( WString* string, const char* format, ... ) PRINTF(2, 3) ;
 //String*
 //TODO: wstring_slice( const String* string, size_t start, size_t end );
 
+
 //---------------------------------------------------------------------------------
 
 /**	Replaces the first match of a search string with a replacement string.
@@ -288,14 +290,14 @@ wstring_squeeze( WString* string );
 
 //---------------------------------------------------------------------------------
 
-//String*
-//TODO: wstring_toLower( String* string );
+WString*
+wstring_toLower( WString* string );
 
-//String*
-//TODO: wstring_toUpper( String* string );
+//WString*
+//TODO: wstring_toUpper( WString* string );
 
-//String*
-//TODO: wstring_toTitle( String* string );
+//WString*
+//TODO: wstring_toTitle( WString* string );
 
 //---------------------------------------------------------------------------------
 

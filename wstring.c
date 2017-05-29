@@ -93,8 +93,9 @@ __wxvsnprintf( char* string, size_t size, const char* format, va_list args )
 	return -1;
 }
 
+//Like __wstr_printf(), but takes a va_list argument
 static char*
-__wstr_printfa( const char* format, va_list args )
+__wstr_printfva( const char* format, va_list args )
 {
 	assert( format );
 
@@ -142,13 +143,22 @@ enum WStringConfiguration {
 //---------------------------------------------------------------------------------
 
 //TODO: Step over UTF8 characters
-#define wstring_foreachIndex( string, index, ... )							\
-do {																	\
-	assert( string != NULL );											\
-	char *__string = string->cstring;										\
-	for ( size_t index = 0; __string[index] != '\0'; index++ ) {		\
-		__VA_ARGS__														\
-	}																	\
+#define wstring_foreachIndex( string, index, ... )					\
+do {																\
+	assert( string != NULL );										\
+	char *__string = string->cstring;								\
+	for ( size_t index = 0; __string[index] != '\0'; index++ ) {	\
+		__VA_ARGS__													\
+	}																\
+}while( 0 )
+
+//TODO: Step over UTF8 characters
+#define str_foreachIndex( str, index, ... )					\
+do {														\
+	assert( str );											\
+	for ( size_t index = 0; str[index] != 0; index++ ) {	\
+		__VA_ARGS__											\
+	}														\
 }while( 0 )
 
 //---------------------------------------------------------------------------------
@@ -319,7 +329,7 @@ wstring_appendf( WString* string, const char* format, ... )
 
     va_list args;
     va_start( args, format );
-	char* other = __wstr_printfa( format, args );
+	char* other = __wstr_printfva( format, args );
 	va_end( args );
 
 	wstring_appendc( string, other );
@@ -336,7 +346,7 @@ wstring_printf( const char* format, ... )
 
     va_list args;
     va_start( args, format );
-	char* cstring  = __wstr_printfa( format, args );
+	char* cstring  = __wstr_printfva( format, args );
 	va_end( args );
 
 	WString* string = wstring_dup( cstring );
@@ -621,6 +631,21 @@ wstring_rjust( WString* string, size_t size )
 
 //---------------------------------------------------------------------------------
 
+WString*
+wstring_toLower( WString* string )
+{
+	assert( string );
+
+	str_foreachIndex( string->cstring, i,
+		string->cstring[i] = tolower( string->cstring[i] );
+	);
+
+	assert( string );
+	return checkString( string );
+}
+
+//---------------------------------------------------------------------------------
+
 size_t
 wstring_size( const WString* string )
 {
@@ -666,6 +691,7 @@ wstring_compare( const WString* string, const WString *other )
 }
 
 //TODO: Only ASCII characters are compared correctly.
+//TODO: Replace GNU strcasecmp() by own implementation
 int
 wstring_compareCase( const WString* string, const WString *other )
 {
@@ -758,6 +784,7 @@ wstring_endsWith( const WString* string, const WString *other )
 
 //---------------------------------------------------------------------------------
 
+//TODO: Replace POSIX strtok_r() by own implementation
 void
 wstring_split( const WString* string, const char *delimiters, void foreach( const WString*, void* data ), void* data )
 {

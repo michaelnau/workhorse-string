@@ -18,7 +18,8 @@ safeFree( char** pointer ) {
 
 //---------------------------------------------------------------------------------
 
-void Test_wstring_newDup()
+void
+Test_wstring_newDup()
 {
 	autoWString *string1 = wstring_new( "", 0 );
 	assert_strequal( string1->cstring, "" );
@@ -38,7 +39,8 @@ void Test_wstring_newDup()
 	autoWString* string6 = wstring_dup( "Weiße Möhren" );
 	assert_strequal( string6->cstring, "Weiße Möhren" );
 }
-void Test_wstring_printf()
+void
+Test_wstring_printf()
 {
 	autoWString *string1 = wstring_printf( "%s", "test" );
 	assert_strequal( string1->cstring, "test" );
@@ -55,7 +57,8 @@ void Test_wstring_printf()
 	autoWString *string5 = wstring_printf( "My name is %s, %s %s.", "Bond", "James", "Bond" );
 	assert_strequal( string5->cstring, "My name is Bond, James Bond." );
 }
-void Test_wstring_clone()
+void
+Test_wstring_clone()
 {
 	autoWString *string1a = wstring_new( "", 0 );
 	autoWString *string1b = wstring_clone( string1a );
@@ -69,7 +72,8 @@ void Test_wstring_clone()
 	autoWString *string3b = wstring_clone( string3a );
 	assert_strequal( string3b->cstring, "Weiße Möhren" );
 }
-void Test_wstring_stealCstring()
+void
+Test_wstring_stealCstring()
 {
 	autoWString *string1 = wstring_new( "", 0 );
 	autoChar* cstring1a = wstring_cstring( string1 );
@@ -92,7 +96,8 @@ void Test_wstring_stealCstring()
 
 //---------------------------------------------------------------------------------
 
-void Test_wstring_compareCompareCaseEquals()
+void
+Test_wstring_compareCompareCaseEquals()
 {
 	autoWString* string1a = wstring_dup("");
 	autoWString* string1b = wstring_dup("");
@@ -218,7 +223,8 @@ Test_wstring_prepend()
 
 //---------------------------------------------------------------------------------
 
-void Test_wstring_ltrim()
+void
+Test_wstring_ltrim()
 {
 	autoWString *string1 = wstring_dup( "" );
 	assert_strequal( wstring_ltrim( string1, " " )->cstring, "" );
@@ -244,7 +250,8 @@ void Test_wstring_ltrim()
 	autoWString *string8 = wstring_dup( "\n  test\n\n\n" );
 	assert_strequal( wstring_ltrim( string8, " \n" )->cstring, "test\n\n\n" );
 }
-void Test_wstring_rtrim()
+void
+Test_wstring_rtrim()
 {
 	autoWString *string1 = wstring_dup( "" );
 	assert_strequal( wstring_rtrim( string1, " " )->cstring, "" );
@@ -271,7 +278,8 @@ void Test_wstring_rtrim()
 	assert_strequal( wstring_rtrim( string8, "\n" )->cstring, "\n  test" );
 
 }
-void Test_wstring_trim()
+void
+Test_wstring_trim()
 {
 	autoWString *string1 = wstring_dup( "" );
 	assert_strequal( wstring_trim( string1, " " )->cstring, "" );
@@ -294,7 +302,8 @@ void Test_wstring_trim()
 
 //---------------------------------------------------------------------------------
 
-void Test_wstring_squeeze()
+void
+Test_wstring_squeeze()
 {
 	autoWString *string1 = wstring_dup( "" );
 	assert_strequal( wstring_squeeze( string1 )->cstring, "" );
@@ -323,7 +332,8 @@ void Test_wstring_squeeze()
 
 //---------------------------------------------------------------------------------
 
-void Test_wstring_center()
+void
+Test_wstring_center()
 {
 	autoWString *string1 = wstring_dup( "" );
 	assert_strequal( wstring_center( string1, 1 )->cstring, " " );
@@ -361,7 +371,8 @@ void Test_wstring_center()
 	autoWString *string12 = wstring_dup( "weiß" );
 	assert_strequal( wstring_center( string12, 12 )->cstring, "    weiß    " );
 }
-void Test_wstring_ljust()
+void
+Test_wstring_ljust()
 {
 	autoWString* string1 = wstring_dup( "" );
 	assert_strequal( wstring_ljust( string1, 1 )->cstring, " " );
@@ -390,7 +401,8 @@ void Test_wstring_ljust()
 	autoWString* string9 = wstring_dup( "  TestÄÖÜß  " );
 	assert_strequal( wstring_ljust( string9, 15 )->cstring, "     TestÄÖÜß  " );
 }
-void Test_wstring_rjust()
+void
+Test_wstring_rjust()
 {
 	autoWString* string1 = wstring_dup( "" );
 	assert_strequal( wstring_rjust( string1, 1 )->cstring, " " );
@@ -422,7 +434,8 @@ void Test_wstring_rjust()
 
 //---------------------------------------------------------------------------------
 
-void Test_wstring_truncate()
+void
+Test_wstring_truncate()
 {
 	autoWString *string1 = wstring_dup( "" );
 	assert_strequal( wstring_truncate( string1, 0 )->cstring, "" );
@@ -447,10 +460,33 @@ void Test_wstring_truncate()
 
 //---------------------------------------------------------------------------------
 
+void
+Test_wstring_toLower()
+{
+	autoWString* string = s.dup("");
+
+	wstring_toLower( string );
+	assert_true( s.empty( string ));
+
+	s.appendc( string, "A" );
+	wstring_toLower( string );
+	assert_strequal( string->cstring, "a" );
+
+	wstring_toLower( string );
+	assert_strequal( string->cstring, "a" );
+
+	s.appendc( string, "pPleS anD ORAngeS" );
+	wstring_toLower( string );
+	assert_strequal( string->cstring, "apples and oranges" );
+}
+
+//---------------------------------------------------------------------------------
+
 static void concatTokens( const WString* token, void* data ) {
 	wstring_append( data, token );
 }
-void Test_wstring_split_word()
+void
+Test_wstring_split_word()
 {
 	autoWString* result = wstring_dup("");
 
@@ -483,7 +519,8 @@ void Test_wstring_split_word()
 	assert_strequal( result->cstring, "" );
 	wstring_delete( &result );
 }
-void Test_wstring_split_fullSentence()
+void
+Test_wstring_split_fullSentence()
 {
 	autoWString* result = wstring_dup("");
 
@@ -491,7 +528,8 @@ void Test_wstring_split_fullSentence()
 	wstring_split( string1, " ,.", concatTokens, result );
 	assert_strequal( result->cstring, "AllemeineEntchenschwimmenaufdemSeeschwimmenaufdemSee" );
 }
-void Test_wstring_split_noSubstringsFound()
+void
+Test_wstring_split_noSubstringsFound()
 {
 	autoWString* result = wstring_dup("");
 
@@ -502,7 +540,8 @@ void Test_wstring_split_noSubstringsFound()
 
 //---------------------------------------------------------------------------------
 
-void Test_wstring_replaceAll_simple()
+void
+Test_wstring_replaceAll_simple()
 {
 	autoWString *string1 = wstring_dup( "This is a test string." );
 	wstring_replaceAll( string1, "test", "longer test" );
@@ -607,6 +646,8 @@ int main()
 	testsuite( Test_wstring_rjust );
 
 	testsuite( Test_wstring_truncate );
+
+	testsuite( Test_wstring_toLower );
 
 	testsuite( Test_wstring_split_word );
 	testsuite( Test_wstring_split_fullSentence );
