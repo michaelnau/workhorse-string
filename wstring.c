@@ -734,7 +734,7 @@ wstring_endsWith( const WString* string, const WString *other )
 //---------------------------------------------------------------------------------
 
 void
-wstring_split( const WString* string, const char *delimiters, void foreach( const WString* ))
+wstring_split( const WString* string, const char *delimiters, void foreach( const WString*, void* data ), void* data )
 {
 	assert( string );
 	assert( delimiters and delimiters[0] );
@@ -747,7 +747,7 @@ wstring_split( const WString* string, const char *delimiters, void foreach( cons
 
 	while ( token ) {
 		WString* tokenString = wstring_dup( token );
-			foreach( tokenString );
+			foreach( tokenString, data );
         wstring_delete( &tokenString );
 		token = strtok_r( NULL, delimiters, &strtokPtr );
 	}

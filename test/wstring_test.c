@@ -447,63 +447,56 @@ void Test_wstring_truncate()
 
 //---------------------------------------------------------------------------------
 
+static void concatTokens( const WString* token, void* data ) {
+	wstring_append( data, token );
+}
 void Test_wstring_split_word()
 {
-	autoWString* result;
-	void concatTokens( const WString* token ) {
-		wstring_append( result, token );
-	}
+	autoWString* result = wstring_dup("");
 
-	result = wstring_dup("");
 	autoWString *string1 = wstring_dup( "Test" );
-	wstring_split( string1, " ", concatTokens );
+	wstring_split( string1, " ", concatTokens, result );
 	assert_strequal( result->cstring, "Test" );
 	wstring_delete( &result );
 
 	result = wstring_dup("");
 	autoWString *string2 = wstring_dup( " Test" );
-	wstring_split( string2, " ", concatTokens );
+	wstring_split( string2, " ", concatTokens, result );
 	assert_strequal( result->cstring, "Test" );
 	wstring_delete( &result );
 
 	result = wstring_dup("");
 	autoWString *string3 = wstring_dup( " Test " );
-	wstring_split( string3, " ", concatTokens );
+	wstring_split( string3, " ", concatTokens, result );
 	assert_strequal( result->cstring, "Test" );
 	wstring_delete( &result );
 
 	result = wstring_dup("");
 	autoWString *string4 = wstring_dup( " Test " );
-	wstring_split( string4, ",", concatTokens );
+	wstring_split( string4, ",", concatTokens, result );
 	assert_strequal( result->cstring, " Test " );
 	wstring_delete( &result );
 
 	result = wstring_dup("");
 	autoWString *string5 = wstring_dup( "" );
-	wstring_split( string5, ",", concatTokens );
+	wstring_split( string5, ",", concatTokens, result );
 	assert_strequal( result->cstring, "" );
 	wstring_delete( &result );
 }
 void Test_wstring_split_fullSentence()
 {
 	autoWString* result = wstring_dup("");
-	void concatTokens( const WString* token ) {
-		wstring_append( result, token );
-	}
 
 	autoWString *string1 = wstring_dup( "Alle meine Entchen schwimmen auf dem See, schwimmen auf dem See." );
-	wstring_split( string1, " ,.", concatTokens );
+	wstring_split( string1, " ,.", concatTokens, result );
 	assert_strequal( result->cstring, "AllemeineEntchenschwimmenaufdemSeeschwimmenaufdemSee" );
 }
 void Test_wstring_split_noSubstringsFound()
 {
 	autoWString* result = wstring_dup("");
-	void concatTokens( const WString* token ) {
-		wstring_append( result, token );
-	}
 
 	autoWString *string1 = wstring_dup( "Alle meine Entchen schwimmen auf dem See, schwimmen auf dem See." );
-	wstring_split( string1, "!", concatTokens );
+	wstring_split( string1, "!", concatTokens, result );
 	assert_strequal( result->cstring, "Alle meine Entchen schwimmen auf dem See, schwimmen auf dem See." );
 }
 

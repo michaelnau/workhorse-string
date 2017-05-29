@@ -1,6 +1,5 @@
 /**	@file
-	Dynamically growing strings with all common operations like append
-	trim, split etc.
+	Dynamically growing C strings with the power and ease of a scripting language.
 */
 #ifndef STRING_H_INCLUDED
 #define STRING_H_INCLUDED
@@ -25,9 +24,9 @@
 	like search, replace, compare, split or trim. Supports UTF-8 strings.
 */
 typedef struct WString {
-	size_t	size;		///<Private member: Do not use. Number of contained UTF8 characters
-	size_t	sizeBytes;	///<Private member: Do not use. Number of contained bytes including the 0 terminator
-	size_t	capacity;	///<Private member: Do not use. Maximum number of bytes. If sizeBytes > capacity, cstring must be realloced.
+	size_t	size;		//<Private member: Do not use. Number of contained UTF8 characters
+	size_t	sizeBytes;	//<Private member: Do not use. Number of contained bytes including the 0 terminator
+	size_t	capacity;	//<Private member: Do not use. Maximum number of bytes. If sizeBytes > capacity, cstring must be realloced.
 	char*	cstring;	///<Public member: A 0-terminated C string, may contain UTF8 characters.
 }WString;
 
@@ -91,7 +90,7 @@ typedef struct WStringNamespace {
 	WString*	(*ljust)		(WString*, size_t);
 	WString*	(*rjust)		(WString*, size_t);
 
-	void	(*split)		(const WString*, const char*, void foreach(const WString*));
+	void	(*split)		(const WString*, const char*, void foreach(const WString*, void* data), void* data);
 	int		(*toInt)		(const WString*);
 	double	(*toDouble)		(const WString*);
 }WStringNamespace;
@@ -462,7 +461,7 @@ wstring_rjust( WString* string, size_t size );
 	\endcode
 */
 void
-wstring_split( const WString* string, const char* delimiters, void foreach( const WString* ));
+wstring_split( const WString* string, const char* delimiters, void foreach( const WString*, void* data ), void* data );
 
 //---------------------------------------------------------------------------------
 
