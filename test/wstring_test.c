@@ -1,5 +1,5 @@
 #define _GNU_SOURCE
-#include "wstring.h"
+#include "wstring_sugar.h"
 #define TEST_IMPLEMENTATION
 #include "Testing.h"
 #include <stdlib.h>
