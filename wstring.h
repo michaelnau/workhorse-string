@@ -290,6 +290,14 @@ wstring_squeeze( WString* string );
 
 //---------------------------------------------------------------------------------
 
+/**	Convert a string to all lower case characters.
+
+	Currently only works for ASCII characters, others stay untouched.
+
+	@param string The string to be converted
+	@return The converted string
+	@pre string != NULL
+*/
 WString*
 wstring_toLower( WString* string );
 
