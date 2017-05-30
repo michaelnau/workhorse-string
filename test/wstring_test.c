@@ -480,6 +480,26 @@ Test_wstring_toLower()
 	assert_strequal( string->cstring, "apples and oranges" );
 }
 
+void
+Test_wstring_toUpper()
+{
+	autoWString* string = s.dup("");
+
+	wstring_toUpper( string );
+	assert_true( s.empty( string ));
+
+	s.appendc( string, "a" );
+	wstring_toUpper( string );
+	assert_strequal( string->cstring, "A" );
+
+	wstring_toUpper( string );
+	assert_strequal( string->cstring, "A" );
+
+	s.appendc( string, "pPleS anD ORAngeS" );
+	wstring_toUpper( string );
+	assert_strequal( string->cstring, "APPLES AND ORANGES" );
+}
+
 //---------------------------------------------------------------------------------
 
 static void concatTokens( const WString* token, void* data ) {
@@ -648,6 +668,7 @@ int main()
 	testsuite( Test_wstring_truncate );
 
 	testsuite( Test_wstring_toLower );
+	testsuite( Test_wstring_toUpper );
 
 	testsuite( Test_wstring_split_word );
 	testsuite( Test_wstring_split_fullSentence );

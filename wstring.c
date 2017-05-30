@@ -644,6 +644,19 @@ wstring_toLower( WString* string )
 	return checkString( string );
 }
 
+WString*
+wstring_toUpper( WString* string )
+{
+	assert( string );
+
+	str_foreachIndex( string->cstring, i,
+		string->cstring[i] = toupper( string->cstring[i] );
+	);
+
+	assert( string );
+	return checkString( string );
+}
+
 //---------------------------------------------------------------------------------
 
 size_t

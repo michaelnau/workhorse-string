@@ -301,8 +301,16 @@ wstring_squeeze( WString* string );
 WString*
 wstring_toLower( WString* string );
 
-//WString*
-//TODO: wstring_toUpper( WString* string );
+/**	Convert a string to all upper case characters.
+
+	Currently only works for ASCII characters, others stay untouched.
+
+	@param string The string to be converted
+	@return The converted string
+	@pre string != NULL
+*/
+WString*
+wstring_toUpper( WString* string );
 
 //WString*
 //TODO: wstring_toTitle( WString* string );
