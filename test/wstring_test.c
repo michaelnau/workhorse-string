@@ -479,6 +479,12 @@ Test_wstring_toLower()
 	s.appendc( string, "pPleS anD ORAngeS" );
 	wstring_toLower( string );
 	assert_strequal( string->cstring, "apples and oranges" );
+
+	char* oldLocale = setlocale( LC_CTYPE, "" );
+	autoWString* string2 = s.dup( "ÄÖÜäöüß" );
+	wstring_toLower( string2 );
+	assert_strequal( string2->cstring, "äöüäöüß" );
+	setlocale( LC_CTYPE, oldLocale );
 }
 void
 Test_wstring_toUpper()

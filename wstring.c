@@ -170,43 +170,6 @@ do {														\
 	}														\
 }while(0)
 
-#if 0
-static void
-__wstr_map( char* str, uint32_t map( uint32_t ))
-{
-	assert( str );
-
-	while ( *str ) {
-		char* last = str;
-		uint32_t mapped = map( utf8NextChar( &str ));
-        size_t size = str-last;
-        if ( size == 1 ) {
-			last[0] = mapped & 0xff;
-		}
-		else
-		if ( size == 2 ) {
-			last[0] = mapped >> 8;
-			last[1] = mapped & 0xff;
-		}
-		else
-		if ( size == 3 ) {
-			last[0] = mapped >> 16;
-			last[1] = (mapped >> 8) & 0xff;
-			last[2] = mapped & 0xff;
-		}
-		else
-		if ( size == 4 ) {
-			last[0] = mapped >> 24;
-			last[1] = (mapped >> 16) & 0xff;
-			last[2] = (mapped >> 8) & 0xff;
-			last[3] = mapped & 0xff;
-		}
-		else
-			__wdie( "Invalid UTF-8 character" );
-	}
-}
-#endif
-
 //---------------------------------------------------------------------------------
 
 WString*
@@ -677,16 +640,39 @@ wstring_rjust( WString* string, size_t size )
 
 //---------------------------------------------------------------------------------
 
+static void
+wstring_map( WString* string, wint_t callback( wint_t ))
+{
+	//Convert string->cstring into a wide string.
+	wchar_t* wideBuffer = __wxmalloc( (string->size+1) * sizeof(wchar_t) );
+	size_t size = mbstowcs( wideBuffer, string->cstring, string->size + 1 );
+
+	if ( size != (size_t)-1 ) {
+		free( string->cstring );
+
+		//Apply the callback function.
+		for ( size_t i = 0; i < string->size; i++ )
+			wideBuffer[i] = callback( wideBuffer[i] );
+
+		//Reconvert it to a char* string.
+		string->capacity = string->size * Utf8MaximumCharacterSize + 1;
+		string->cstring = __wxmalloc( string->capacity );
+		string->sizeBytes = wcstombs( string->cstring, wideBuffer, string->capacity )+1;
+		assert( string->sizeBytes != (size_t)-1 && "A bug in mbstowcs(), callback() or wcstombs() occurred." );
+		string->size = utf8len( string->cstring );
+		string->cstring[ string->sizeBytes-1 ] = 0;
+	}
+
+	//Clean up.
+	free( wideBuffer );
+}
+
 WString*
 wstring_toLower( WString* string )
 {
 	assert( string );
 
-//	str_map( string->cstring, current, tolower( current ));
-
-	str_foreachIndex( string->cstring, i,
-		string->cstring[i] = tolower( string->cstring[i] );
-	);
+	wstring_map( string, towlower );
 
 	assert( string );
 	return checkString( string );
@@ -697,28 +683,8 @@ wstring_toUpper( WString* string )
 {
 	assert( string );
 
-	//Convert string->cstring into a wide string.
-	wchar_t* wideBuffer = __wxmalloc( (string->size+1) * sizeof(wchar_t) );
-	size_t size = mbstowcs( wideBuffer, string->cstring, string->size + 1 );
+	wstring_map( string, towupper );
 
-	if ( size != (size_t)-1 ) {
-		free( string->cstring );
-
-		//Convert it to upper case.
-		for ( size_t i = 0; i < string->size; i++ )
-			wideBuffer[i] = towupper( wideBuffer[i] );
-
-		//Reconvert it to a char* string.
-		string->capacity = string->size * Utf8MaximumCharacterSize + 1;
-		string->cstring = __wxmalloc( string->capacity );
-		string->sizeBytes = wcstombs( string->cstring, wideBuffer, string->capacity )+1;
-		assert( string->sizeBytes != (size_t)-1 && "A bug in mbstowcs(), towupper() or wcstombs() occurred." );
-		string->size = utf8len( string->cstring );
-		string->cstring[ string->sizeBytes-1 ] = 0;
-	}
-
-	//Clean up.
-	free( wideBuffer );
 	assert( string );
 	return checkString( string );
 }
