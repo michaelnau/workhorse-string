@@ -330,6 +330,9 @@ wstring_toTitle( WString* string );
 
 /**	Truncate a string after a given number of characters.
 
+	Uses internally the wchar_t standard library functions. So it basically works for
+	non-ASCII characters with the known limitations of those functions.
+
 	@param string The string to be truncated
 	@param size The maximum character number that will remain
 	@return string, allowing to chain the function with other wstring_xyz() calls

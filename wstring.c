@@ -18,11 +18,11 @@
 static void
 resize( WString* string, size_t newCapacity );
 
-//static uint32_t
-//utf8NextChar( char** str );
+static uint32_t
+utf8NextChar( char** str );
 
-//static bool
-//utf8MoreChars( const char* str );
+static bool
+utf8MoreChars( const char* str );
 
 static size_t
 utf8len( const char *str );
@@ -120,7 +120,6 @@ __wstr_printfva( const char* format, va_list args )
 	return other;
 }
 
-
 //---------------------------------------------------------------------------------
 
 static WString*
@@ -162,10 +161,10 @@ do {																\
 }while( 0 )
 
 //TODO: Step over UTF8 characters
-#define str_foreachIndex( str, index, ... )					\
+#define str_foreach( str, current, ... )					\
 do {														\
 	assert( str );											\
-	for ( size_t index = 0; str[index] != 0; index++ ) {	\
+	for ( char* current = str; utf8MoreChars( str ); utf8NextChar( &current )) {	\
 		__VA_ARGS__											\
 	}														\
 }while(0)
@@ -550,15 +549,26 @@ wstring_truncate( WString* string, size_t size )
 	if ( size >= string->size )
 		return checkString( string );
 
-	size_t charIndex = 1;
-	wstring_foreachIndex( string, byteIndex,
-		if ( charIndex > size ) {
-			string->cstring[byteIndex] = 0;
+//	size_t charIndex = 1;
+//	wstring_foreachIndex( string, byteIndex,
+//		if ( charIndex > size ) {
+//			string->cstring[byteIndex] = 0;
+//			string->size = size;
+//			string->sizeBytes = byteIndex + 1;
+//			return checkString( string );
+//		}
+//		charIndex++;
+//	);
+
+	size_t index = 1;
+	str_foreach( string->cstring, current,
+		if ( index > size ) {
+			*current = 0;
 			string->size = size;
-			string->sizeBytes = byteIndex + 1;
-			return checkString( string );
+			string->sizeBytes = current-string->cstring + 1;
+			break;
 		}
-		charIndex++;
+		index++;
 	);
 
 	assert( string != NULL );
@@ -952,7 +962,6 @@ resize( WString* string, size_t newCapacity )
 //	checkString( string );
 }
 
-#if 0
 static uint32_t
 utf8NextChar( char** strPtr )
 {
@@ -980,9 +989,7 @@ utf8NextChar( char** strPtr )
 
 	return result;
 }
-#endif // 0
 
-#if 0
 static bool
 utf8MoreChars( const char* str )
 {
@@ -991,7 +998,6 @@ utf8MoreChars( const char* str )
 	if ( *str ) return true;
 	else return false;
 }
-#endif
 
 //Taken from Github, UTF8.h (Public Domain), then modified
 static size_t

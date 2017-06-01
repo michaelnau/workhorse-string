@@ -457,6 +457,14 @@ Test_wstring_truncate()
 	autoWString *string4 = wstring_dup( "Howard Carpendale" );
 	assert_strequal( wstring_truncate( string4, 6 )->cstring, "Howard" );
 	assert_strequal( wstring_truncate( string4, 1 )->cstring, "H" );
+
+	char* oldLocale = setlocale( LC_CTYPE, "" );
+	autoWString* string5 = wstring_dup( "ÄÖÜäöüß" );
+	assert_strequal( wstring_truncate( string5, 8 )->cstring, "ÄÖÜäöüß" );
+	assert_strequal( wstring_truncate( string5, 7 )->cstring, "ÄÖÜäöüß" );
+	assert_strequal( wstring_truncate( string5, 6 )->cstring, "ÄÖÜäöü" );
+	assert_strequal( wstring_truncate( string5, 1 )->cstring, "Ä" );
+	setlocale( LC_CTYPE, oldLocale );
 }
 
 //---------------------------------------------------------------------------------
