@@ -37,12 +37,12 @@ typedef struct WString {
 /**	Create a string from a C string and a given cmaximum apacity.
 */
 WString*
-wstring_new( const char* cstring, size_t capacity );
+wstring_new( const char cstring[], size_t capacity );
 
 /**	Create a string from a C string.
 */
 WString*
-wstring_dup( const char* cstring );
+wstring_dup( const char cstring[] );
 
 /**	Makes a deep copy of a string.
 */
@@ -56,7 +56,7 @@ wstring_clone( const WString* string );
 	@return
 */
 WString*
-wstring_printf( const char* format, ... ) PRINTF(1, 2);
+wstring_printf( const char format[], ... ) PRINTF(1, 2);
 
 /**	Destroys a string.
 */
@@ -204,7 +204,7 @@ wstring_prepend( WString* string, const WString* other );
 	@return string
 */
 WString*
-wstring_appendc( WString* string, const char* other );
+wstring_appendc( WString* string, const char other[] );
 
 /**	Appends n characters from a buffer to the string.
 
@@ -214,7 +214,7 @@ wstring_appendc( WString* string, const char* other );
 	@return
 */
 WString*
-wstring_appendn( WString* string, size_t n, const char* buffer );
+wstring_appendn( WString* string, size_t n, const char buffer[] );
 
 /**	Appends a printf-like string to another string.
 
@@ -224,7 +224,7 @@ wstring_appendn( WString* string, size_t n, const char* buffer );
 	@return string
 */
 WString*
-wstring_appendf( WString* string, const char* format, ... ) PRINTF(2, 3) ;
+wstring_appendf( WString* string, const char format[], ... ) PRINTF(2, 3) ;
 
 //String*
 //TODO: wstring_insert( String* string, size_t position );
@@ -248,7 +248,7 @@ wstring_appendf( WString* string, const char* format, ... ) PRINTF(2, 3) ;
 	@return
 */
 WString*
-wstring_replace( WString* string, const char* search, const char* replace );
+wstring_replace( WString* string, const char search[], const char replace[] );
 
 /**	Replaces all matches of a search string with a replacement string.
 
@@ -258,7 +258,7 @@ wstring_replace( WString* string, const char* search, const char* replace );
 	@return
 */
 WString*
-wstring_replaceAll( WString* string, const char* search, const char* replace );
+wstring_replaceAll( WString* string, const char search[], const char replace[] );
 
 //---------------------------------------------------------------------------------
 
@@ -385,7 +385,7 @@ wstring_rjust( WString* string, size_t size );
 	\endcode
 */
 void
-wstring_split( const WString* string, const char* delimiters, void foreach( const WString*, void* data ), void* data );
+wstring_split( const WString* string, const char delimiters[], void foreach( const WString*, void* data ), void* data );
 
 //---------------------------------------------------------------------------------
 
