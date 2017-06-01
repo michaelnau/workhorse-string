@@ -111,7 +111,6 @@ wstring_empty( const WString* string );
 static inline bool
 wstring_nonEmpty( const WString* string ) { return !wstring_empty( string ); }
 
-
 /**	Check if two strings are equal.
 
 	@param string
@@ -363,7 +362,7 @@ wstring_rjust( WString* string, size_t size );
 /**	Split a string in substrings separated by the given delimiter characters.
 
 	@param string The string to be split in tokens
-	@param delimiters A list of one-character delimiters
+	@param delimiters A list of one-character ASCII delimiters
 	@param foreach A function to be called for each token
 	@param data Optional data argument passed to the foreach() function
 

@@ -549,17 +549,6 @@ wstring_truncate( WString* string, size_t size )
 	if ( size >= string->size )
 		return checkString( string );
 
-//	size_t charIndex = 1;
-//	wstring_foreachIndex( string, byteIndex,
-//		if ( charIndex > size ) {
-//			string->cstring[byteIndex] = 0;
-//			string->size = size;
-//			string->sizeBytes = byteIndex + 1;
-//			return checkString( string );
-//		}
-//		charIndex++;
-//	);
-
 	size_t index = 1;
 	str_foreach( string->cstring, current,
 		if ( index > size ) {
@@ -816,7 +805,7 @@ wstring_similarity( const WString* string, const WString* other )
 
     //initialize the vector.
     size_t index = 0;
-    size_t* cache = calloc( length, sizeof( size_t ));
+    size_t* cache = __wxcalloc( length, sizeof( size_t ));
     while ( index < length ) {
         cache[index] = index + 1;
         index++;
@@ -885,7 +874,6 @@ wstring_endsWith( const WString* string, const WString *other )
 //TODO: Replace POSIX strtok_r() by own implementation
 
 void
-
 wstring_split( const WString* string, const char *delimiters, void foreach( const WString*, void* data ), void* data )
 {
 	assert( string );
