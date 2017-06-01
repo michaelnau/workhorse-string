@@ -4,10 +4,12 @@
 #include <errno.h>
 #include <float.h>	//DBL_MIN, DBL_MAX
 #include <ctype.h>
+#include <wctype.h>
 #include <limits.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <iso646.h>
 
@@ -15,6 +17,12 @@
 
 static void
 resize( WString* string, size_t newCapacity );
+
+//static uint32_t
+//utf8NextChar( char** str );
+
+//static bool
+//utf8MoreChars( const char* str );
 
 static size_t
 utf8len( const char *str );
@@ -117,18 +125,19 @@ __wstr_printfva( const char* format, va_list args )
 
 static WString*
 checkString( const WString* string ) {
-	assert( string->cstring != NULL );
+	assert( string->cstring );
 	assert( string->size <= string->sizeBytes );
 	assert( string->sizeBytes <= string->capacity );
-	assert( string->size == utf8len( string->cstring ));
 	assert( string->sizeBytes == strlen( string->cstring ) + 1 );
+	assert( string->size == utf8len( string->cstring ));
 
 	return (WString*)string;
 }
 
 enum WStringConfiguration {
-	WStringGrowthRate		= 2,
-	WStringDefaultCapacity 	= 100,
+	WStringGrowthRate			= 2,
+	WStringDefaultCapacity 		= 100,
+	Utf8MaximumCharacterSize	= 4,
 };
 
 
@@ -159,7 +168,44 @@ do {														\
 	for ( size_t index = 0; str[index] != 0; index++ ) {	\
 		__VA_ARGS__											\
 	}														\
-}while( 0 )
+}while(0)
+
+#if 0
+static void
+__wstr_map( char* str, uint32_t map( uint32_t ))
+{
+	assert( str );
+
+	while ( *str ) {
+		char* last = str;
+		uint32_t mapped = map( utf8NextChar( &str ));
+        size_t size = str-last;
+        if ( size == 1 ) {
+			last[0] = mapped & 0xff;
+		}
+		else
+		if ( size == 2 ) {
+			last[0] = mapped >> 8;
+			last[1] = mapped & 0xff;
+		}
+		else
+		if ( size == 3 ) {
+			last[0] = mapped >> 16;
+			last[1] = (mapped >> 8) & 0xff;
+			last[2] = mapped & 0xff;
+		}
+		else
+		if ( size == 4 ) {
+			last[0] = mapped >> 24;
+			last[1] = (mapped >> 16) & 0xff;
+			last[2] = (mapped >> 8) & 0xff;
+			last[3] = mapped & 0xff;
+		}
+		else
+			__wdie( "Invalid UTF-8 character" );
+	}
+}
+#endif
 
 //---------------------------------------------------------------------------------
 
@@ -636,6 +682,8 @@ wstring_toLower( WString* string )
 {
 	assert( string );
 
+//	str_map( string->cstring, current, tolower( current ));
+
 	str_foreachIndex( string->cstring, i,
 		string->cstring[i] = tolower( string->cstring[i] );
 	);
@@ -649,10 +697,28 @@ wstring_toUpper( WString* string )
 {
 	assert( string );
 
-	str_foreachIndex( string->cstring, i,
-		string->cstring[i] = toupper( string->cstring[i] );
-	);
+	//Convert string->cstring into a wide string.
+	wchar_t* wideBuffer = __wxmalloc( (string->size+1) * sizeof(wchar_t) );
+	size_t size = mbstowcs( wideBuffer, string->cstring, string->size + 1 );
 
+	if ( size != (size_t)-1 ) {
+		free( string->cstring );
+
+		//Convert it to upper case.
+		for ( size_t i = 0; i < string->size; i++ )
+			wideBuffer[i] = towupper( wideBuffer[i] );
+
+		//Reconvert it to a char* string.
+		string->capacity = string->size * Utf8MaximumCharacterSize + 1;
+		string->cstring = __wxmalloc( string->capacity );
+		string->sizeBytes = wcstombs( string->cstring, wideBuffer, string->capacity )+1;
+		assert( string->sizeBytes != (size_t)-1 && "A bug in mbstowcs(), towupper() or wcstombs() occurred." );
+		string->size = utf8len( string->cstring );
+		string->cstring[ string->sizeBytes-1 ] = 0;
+	}
+
+	//Clean up.
+	free( wideBuffer );
 	assert( string );
 	return checkString( string );
 }
@@ -798,7 +864,9 @@ wstring_endsWith( const WString* string, const WString *other )
 //---------------------------------------------------------------------------------
 
 //TODO: Replace POSIX strtok_r() by own implementation
+
 void
+
 wstring_split( const WString* string, const char *delimiters, void foreach( const WString*, void* data ), void* data )
 {
 	assert( string );
@@ -874,6 +942,47 @@ resize( WString* string, size_t newCapacity )
 	assert( string->capacity >= newCapacity );
 //	checkString( string );
 }
+
+#if 0
+static uint32_t
+utf8NextChar( char** strPtr )
+{
+	assert( strPtr );
+	assert( *strPtr );
+	const unsigned char* str = *(const unsigned char**)strPtr;
+
+	uint32_t result;
+	if (( *str & 0xf8) == 0xf0 ) {
+		result = (str[0] << 24) + (str[1] << 16) + (str[2] << 8) + str[3];
+		*strPtr += 4;
+	}
+	if (( *str & 0xf0 ) == 0xe0 ) {
+		result = (str[0] << 16) + (str[1] << 8) + str[2];
+		*strPtr += 3;
+	}
+	if (( *str & 0xe0 ) == 0xc0 ) {
+		result = (str[0] << 8) + str[1];
+		*strPtr += 2;
+	}
+	else {
+		result = str[0];
+		*strPtr += 1;
+	}
+
+	return result;
+}
+#endif // 0
+
+#if 0
+static bool
+utf8MoreChars( const char* str )
+{
+	assert( str );
+
+	if ( *str ) return true;
+	else return false;
+}
+#endif
 
 //Taken from Github, UTF8.h (Public Domain), then modified
 static size_t

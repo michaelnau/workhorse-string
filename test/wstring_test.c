@@ -2,6 +2,7 @@
 #include "wstring_sugar.h"
 #define TEST_IMPLEMENTATION
 #include "Testing.h"
+#include <locale.h>
 #include <stdlib.h>
 
 WStringNamespace s = wstringNamespace;
@@ -479,7 +480,6 @@ Test_wstring_toLower()
 	wstring_toLower( string );
 	assert_strequal( string->cstring, "apples and oranges" );
 }
-
 void
 Test_wstring_toUpper()
 {
@@ -498,6 +498,12 @@ Test_wstring_toUpper()
 	s.appendc( string, "pPleS anD ORAngeS" );
 	wstring_toUpper( string );
 	assert_strequal( string->cstring, "APPLES AND ORANGES" );
+
+	char* oldLocale = setlocale( LC_CTYPE, "" );
+	autoWString* string2 = s.dup( "ÄÖÜäöüß" );
+	wstring_toUpper( string2 );
+	assert_strequal( string2->cstring, "ÄÖÜÄÖÜß" );
+	setlocale( LC_CTYPE, oldLocale );
 }
 
 //---------------------------------------------------------------------------------
