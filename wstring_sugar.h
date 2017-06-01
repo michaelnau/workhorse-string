@@ -62,6 +62,10 @@ typedef struct WStringNamespace {
 	WString*	(*rtrim)		(WString*, const char[]);
 	WString*	(*squeeze)		(WString*);
 
+	WString*	(*toLower)		(WString* string);
+	WString*	(*toUpper)		(WString* string);
+	WString*	(*toTitle)		(WString* string);
+
 	WString*	(*truncate)		(WString*, size_t);
 	WString*	(*center)		(WString*, size_t);
 	WString*	(*ljust)		(WString*, size_t);
@@ -106,6 +110,10 @@ typedef struct WStringNamespace {
 	.ltrim = wstring_ltrim,				\
 	.rtrim = wstring_rtrim,				\
 	.squeeze = wstring_squeeze,			\
+\
+	.toLower = wstring_toLower,			\
+	.toUpper= wstring_toUpper,			\
+	.toTitle = wstring_toTitle,			\
 \
 	.truncate = wstring_truncate,		\
 	.center = wstring_center,			\

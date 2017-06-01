@@ -470,7 +470,7 @@ Test_wstring_toLower()
 	assert_true( s.empty( string ));
 
 	s.appendc( string, "A" );
-	wstring_toLower( string );
+	s.toLower( string );
 	assert_strequal( string->cstring, "a" );
 
 	wstring_toLower( string );
@@ -495,7 +495,7 @@ Test_wstring_toUpper()
 	assert_true( s.empty( string ));
 
 	s.appendc( string, "a" );
-	wstring_toUpper( string );
+	s.toUpper( string );
 	assert_strequal( string->cstring, "A" );
 
 	wstring_toUpper( string );
@@ -520,7 +520,7 @@ Test_wstring_toTitle()
 	assert_true( s.empty( string ));
 
 	s.appendc( string, "a" );
-	wstring_toTitle( string );
+	s.toTitle( string );
 	assert_strequal( string->cstring, "A" );
 
 	wstring_toTitle( string );
