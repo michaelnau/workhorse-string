@@ -1,8 +1,8 @@
 /**	@file
 	Dynamically growing C strings with the power and ease of a scripting language.
 */
-#ifndef STRING_H_INCLUDED
-#define STRING_H_INCLUDED
+#ifndef WSTRING_H_INCLUDED
+#define WSTRING_H_INCLUDED
 
 #include <limits.h>		//INT_MIN
 #include <math.h>		//NAN
@@ -407,4 +407,4 @@ wstring_toDouble( const WString* string );
 
 //---------------------------------------------------------------------------------
 
-#endif // STRING_H_INCLUDED
+#endif // WSTRING_H_INCLUDED
