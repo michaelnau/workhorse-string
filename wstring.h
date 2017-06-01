@@ -154,6 +154,8 @@ wstring_similarity( const WString* string, const WString* other );
 
 /**	Check if a string contains another string.
 
+	Supports Unicode strings.
+
 	@param string
 	@param other
 	@return

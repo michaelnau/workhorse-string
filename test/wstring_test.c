@@ -125,6 +125,34 @@ Test_wstring_compareCompareCaseEquals()
 	assert_false( wstring_equals( string4a, string4b ));
 }
 void
+Test_wstring_contains()
+{
+	autoWString* string1 = s.dup("");
+
+	autoWString* string2 = s.dup("");
+	assert_true( wstring_contains( string1, string2 ));
+
+	s.appendc( string1, "T" );
+	assert_true( s.contains( string1, string2 ));
+
+	s.appendc( string2, "T" );
+	assert_true( s.contains( string1, string2 ));
+
+	s.appendc( string1, "Test" );
+	assert_true( s.contains( string1, string2 ));
+
+	char* oldLocale = setlocale( LC_CTYPE, "" );
+
+	autoWString* string3 = s.dup("Ähnlich, schön und wüst");
+	autoWString* string4 = s.dup("hnlich");
+	assert_true( s.contains( string3, string4 ));
+
+	autoWString* string5 = s.dup("schön");
+	assert_true( s.contains( string3, string5 ));
+
+	setlocale( LC_CTYPE, oldLocale );
+}
+void
 Test_wstring_similarity()
 {
 	autoWString* string1 = s.new( "", 0 );
@@ -694,6 +722,7 @@ int main()
 	testsuite( Test_wstring_stealCstring );
 
 	testsuite( Test_wstring_compareCompareCaseEquals );
+	testsuite( Test_wstring_contains );
 	testsuite( Test_wstring_similarity );
 
 	testsuite( Test_wstring_append );
