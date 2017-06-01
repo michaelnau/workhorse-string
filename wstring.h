@@ -292,7 +292,8 @@ wstring_squeeze( WString* string );
 
 /**	Convert a string to all lower case characters.
 
-	Currently only works for ASCII characters, others stay untouched.
+	Uses internally the wchar_t standard library functions. So it basically works for
+	non-ASCII characters with the known limitations of those functions.
 
 	@param string The string to be converted
 	@return The converted string
@@ -303,7 +304,8 @@ wstring_toLower( WString* string );
 
 /**	Convert a string to all upper case characters.
 
-	Currently only works for ASCII characters, others stay untouched.
+	Uses internally the wchar_t standard library functions. So it basically works for
+	non-ASCII characters with the known limitations of those functions.
 
 	@param string The string to be converted
 	@return The converted string
@@ -312,8 +314,17 @@ wstring_toLower( WString* string );
 WString*
 wstring_toUpper( WString* string );
 
-//WString*
-//TODO: wstring_toTitle( WString* string );
+/**	Convert the first letters of all words to uppercase and all other letters to lowercase.
+
+	Uses internally the wchar_t standard library functions. So it basically works for
+	non-ASCII characters with the known limitations of those functions.
+
+	@param string The string to be converted
+	@return The converted string
+	@pre string != NULL
+*/
+WString*
+wstring_toTitle( WString* string );
 
 //---------------------------------------------------------------------------------
 

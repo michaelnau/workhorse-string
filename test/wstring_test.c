@@ -511,6 +511,31 @@ Test_wstring_toUpper()
 	assert_strequal( string2->cstring, "ÄÖÜÄÖÜß" );
 	setlocale( LC_CTYPE, oldLocale );
 }
+void
+Test_wstring_toTitle()
+{
+	autoWString* string = s.dup("");
+
+	wstring_toTitle( string );
+	assert_true( s.empty( string ));
+
+	s.appendc( string, "a" );
+	wstring_toTitle( string );
+	assert_strequal( string->cstring, "A" );
+
+	wstring_toTitle( string );
+	assert_strequal( string->cstring, "A" );
+
+	s.appendc( string, "pPleS anD ORAngeS" );
+	wstring_toTitle( string );
+	assert_strequal( string->cstring, "Apples And Oranges" );
+
+	char* oldLocale = setlocale( LC_CTYPE, "" );
+	autoWString* string2 = s.dup( "ächzEnd UNd stÖhnenD" );
+	wstring_toTitle( string2 );
+	assert_strequal( string2->cstring, "Ächzend Und Stöhnend" );
+	setlocale( LC_CTYPE, oldLocale );
+}
 
 //---------------------------------------------------------------------------------
 
@@ -681,6 +706,7 @@ int main()
 
 	testsuite( Test_wstring_toLower );
 	testsuite( Test_wstring_toUpper );
+	testsuite( Test_wstring_toTitle );
 
 	testsuite( Test_wstring_split_word );
 	testsuite( Test_wstring_split_fullSentence );

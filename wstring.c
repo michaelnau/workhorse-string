@@ -689,6 +689,49 @@ wstring_toUpper( WString* string )
 	return checkString( string );
 }
 
+WString*
+wstring_toTitle( WString* string )
+{
+	assert( string );
+
+	//Convert string->cstring into a wide string.
+	wchar_t* wideBuffer = __wxmalloc( (string->size+1) * sizeof(wchar_t) );
+	size_t size = mbstowcs( wideBuffer, string->cstring, string->size + 1 );
+
+	if ( size != (size_t)-1 ) {
+		free( string->cstring );
+
+		//Apply the callback function.
+		bool space = true;
+		for ( size_t i = 0; i < string->size; i++ ) {
+			if ( wideBuffer[i] == L' ' )
+				space = true;
+			else
+			if ( space == true ) {
+				wideBuffer[i] = towupper( wideBuffer[i] );
+				space = false;
+			}
+			else
+				wideBuffer[i] = towlower( wideBuffer[i] );
+
+		}
+
+		//Reconvert it to a char* string.
+		string->capacity = string->size * Utf8MaximumCharacterSize + 1;
+		string->cstring = __wxmalloc( string->capacity );
+		string->sizeBytes = wcstombs( string->cstring, wideBuffer, string->capacity )+1;
+		assert( string->sizeBytes != (size_t)-1 && "A bug in mbstowcs(), callback() or wcstombs() occurred." );
+		string->size = utf8len( string->cstring );
+		string->cstring[ string->sizeBytes-1 ] = 0;
+	}
+
+	//Clean up.
+	free( wideBuffer );
+
+	assert( string );
+	return checkString( string );
+}
+
 //---------------------------------------------------------------------------------
 
 size_t
