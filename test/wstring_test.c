@@ -180,6 +180,18 @@ Test_wstring_similarity()
 	s.assign( &string1, s.dup( "kitten" ));					//From Wikipedia article
 	s.assign( &string2, s.dup( "sitting" ));
 	assert_equal( wstring_similarity( string1, string2 ), 3 );
+
+	char* oldLocale = setlocale( LC_CTYPE, "" );
+
+	autoWString* string3 = s.dup( "Ärger" );
+	autoWString* string4 = s.dup( "ärmer" );
+	assert_equal( wstring_similarity( string3, string4 ), 2 );
+	autoWString* string5 = s.dup( "wärmer" );
+	assert_equal( wstring_similarity( string3, string5 ), 3 );
+	autoWString* string6 = s.dup( "Orger" );
+	assert_unequal( wstring_similarity( string6, string5 ), 1 );
+
+	setlocale( LC_CTYPE, oldLocale );
 }
 
 //---------------------------------------------------------------------------------

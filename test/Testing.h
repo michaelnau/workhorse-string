@@ -79,7 +79,7 @@ do {												\
 	__wassert( ((int)int1) == ((int)int2), #int1 " should equal " #int2, __FILE__, __LINE__, __func__ )
 
 #define assert_unequal( int1, int2 )				\
-	__wassert( ((int)int1) != ((int)int2), #int1 " shoud not equal " #int2, __FILE__, __LINE__, __func__ )
+	__wassert( ((int)int1) != ((int)int2), #int1 " should not equal " #int2, __FILE__, __LINE__, __func__ )
 
 #define assert_less( int1, int2 )					\
 	__wassert( ((int)int1) < ((int)int2), #int1 " should be less than " #int2, __FILE__, __LINE__, __func__ )
