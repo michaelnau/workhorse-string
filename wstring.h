@@ -242,7 +242,7 @@ wstring_appendn( WString* string, size_t n, const char buffer[] );
 	@return string
 */
 WString*
-wstring_appendf( WString* string, const char format[], ... ) PRINTF(2, 3) ;
+wstring_appendf( WString* string, const char format[], ... ) PRINTF(2, 3);
 
 //String*
 //TODO: wstring_insert( String* string, size_t position );
@@ -283,23 +283,33 @@ wstring_replaceAll( WString* string, const char search[], const char replace[] )
 /**	Remove characters from the start and end.
 
 	@param string The string to be trimmed
-	@param chars Array of characters to be trimmed away
+	@param chars Array of ASCII characters to be trimmed away
 	@return string, to allow chaining with other string functions
 */
 WString*
 wstring_trim( WString* string, const char chars[] );
 
 /**	Remove characters from the start.
+
+	@param string The string to be trimmed
+	@param chars Array of ASCII characters to be trimmed away
+	@return string, to allow chaining with other string functions
 */
 WString*
 wstring_ltrim( WString* string, const char chars[] );
 
 /**	Remove characters from the end.
+
+	@param string The string to be trimmed
+	@param chars Array of ASCII characters to be trimmed away
+	@return string, to allow chaining with other string functions
 */
 WString*
 wstring_rtrim( WString* string, const char chars[] );
 
 /**	Remove all multiple whitespace characters from the string.
+
+	Whitespace characters are those ASCII characters defined by isspace().
 
 	@param string
 	@return string
@@ -349,11 +359,8 @@ wstring_toTitle( WString* string );
 
 /**	Truncate a string after a given number of characters.
 
-	Uses internally the wchar_t standard library functions. So it basically works for
-	non-ASCII characters with the known limitations of those functions.
-
 	@param string The string to be truncated
-	@param size The maximum character number that will remain
+	@param size The maximum UTF8 character number that will remain
 	@return string, allowing to chain the function with other wstring_xyz() calls
 */
 WString*
@@ -361,18 +368,27 @@ wstring_truncate( WString* string, size_t size );
 
 //---------------------------------------------------------------------------------
 
+//TODO: UTF-8 support
 /**	Centers a string in a possibly longer new string and fills it left and right
 	with spaces.
+
+	Currently only works for ASCII strings.
 */
 WString*
 wstring_center( WString* string, size_t size );
 
+//TODO: UTF-8 support
 /**	Increase the string to the given size by filling it with spaces at the front.
+
+	Currently only works for ASCII strings.
 */
 WString*
 wstring_ljust( WString* string, size_t size );
 
+//TODO: UTF-8 support
 /**	Increase the string to the given size by filling it with spacess at the end.
+
+	Currently only works for ASCII strings.
 */
 WString*
 wstring_rjust( WString* string, size_t size );
@@ -419,6 +435,17 @@ wstring_toInt( const WString* string );
 
 	@param string
 	@return The resulting double or NAN if the string could not be parsed.
+
+	Example:
+	\code
+	WString* string1 = wstring_dup( "1.31" );
+	double num1 = wstring_toDouble( string1 );
+	assert( num1 > 1.30 && num1 < 1.32 );
+
+	WString* string2 = wstring_dup( "This is not a number." );
+	double num2 = wstring_toDouble( string2 );
+	assert( isnan( num2 ));
+	\endcode
 */
 double
 wstring_toDouble( const WString* string );

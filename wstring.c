@@ -55,14 +55,14 @@ occurrences( const char *string, const char *search );
 #define __wxnew( type, ... )	\
 	memcpy( __wxmalloc( sizeof( type )), &(type){ __VA_ARGS__ }, sizeof(type) )
 
-void
+static void
 __wdie( const char* text )
 {
 	fputs( text, stderr );
 	abort();
 }
 
-void*
+static void*
 __wxmalloc( size_t size )
 {
 	void* ptr = malloc( size );
@@ -72,7 +72,7 @@ __wxmalloc( size_t size )
 	return NULL;
 }
 
-void*
+static void*
 __wxrealloc( void* pointer, size_t size )
 {
 	void* ptr = realloc( pointer, size );
@@ -92,7 +92,7 @@ __wxcalloc( size_t number, size_t size )
 	return NULL;
 }
 
-char*
+static char*
 __wstr_dup( const char* string )
 {
 	if ( not string ) string = "";
