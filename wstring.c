@@ -106,7 +106,7 @@ __wstr_dup( const char* string )
 }
 
 static int
-__wxvsnprintf( char* string, size_t size, const char* format, va_list args )
+__wvsnprintf( char* string, size_t size, const char* format, va_list args )
 {
 	assert( format );
 
@@ -126,9 +126,9 @@ __wstr_printfva( const char* format, va_list args )
     va_list args_copy;
 	va_copy( args_copy, args );
 
-	int len = __wxvsnprintf( NULL, 0, format, args_copy ) + 1;
+	int len = __wvsnprintf( NULL, 0, format, args_copy ) + 1;
 	char* other = __wxmalloc( len );
-	__wxvsnprintf( other, len, format, args );
+	__wvsnprintf( other, len, format, args );
 
 	va_end( args_copy );
 
